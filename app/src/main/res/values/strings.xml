@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Coin Market</string>
+    <string name="reload_button">Reload</string>
+</resources>
