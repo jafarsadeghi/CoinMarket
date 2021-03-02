@@ -45,21 +45,9 @@
         android:layout_width="match_parent"
         android:layout_height="72dp" />
 
-    <include
-        android:id="@+id/coin8"
-        layout="@layout/single_coin"
+    <Button
+        android:id="@+id/button"
         android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin9"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin10"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
+        android:layout_height="wrap_content"
+        android:text="@string/reload_button" />
 </LinearLayout>

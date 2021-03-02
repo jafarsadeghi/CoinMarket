@@ -3,15 +3,18 @@ package mobile.sharif.coinmarket;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     String db_name = "coin_db";
-
+    Button button;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        button = findViewById(R.id.button);
         Coin btc = new Coin("bitcoin", "btc");
         Coin eth = new Coin("Etreum", "eth");
         Coin ltc = new Coin("Litecoin ", "ltc");
@@ -19,9 +22,6 @@ public class MainActivity extends AppCompatActivity {
         Coin dot = new Coin("Polkadot", "dot");
         Coin xlm = new Coin("Stellar", "xlm");
         Coin iota = new Coin("IOTA", "IOTA");
-        Coin xrp = new Coin("ripple", "xrp");
-        Coin neo = new Coin("neo", "NEO");
-        Coin eos = new Coin("Eos", "eos");
 
         btc.fill_view(findViewById(R.id.coin1));
         eth.fill_view(findViewById(R.id.coin2));
@@ -30,9 +30,13 @@ public class MainActivity extends AppCompatActivity {
         dot.fill_view(findViewById(R.id.coin5));
         xlm.fill_view(findViewById(R.id.coin6));
         iota.fill_view(findViewById(R.id.coin7));
-        xrp.fill_view(findViewById(R.id.coin8));
-        neo.fill_view(findViewById(R.id.coin9));
-        eos.fill_view(findViewById(R.id.coin10));
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Reloading", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }
