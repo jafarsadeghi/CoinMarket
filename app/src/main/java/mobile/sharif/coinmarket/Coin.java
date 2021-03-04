@@ -62,4 +62,9 @@ public class Coin {
     String getSeven_day_change() {
         return seven_day_change;
     }
+
+    String getDisplay_name() {
+        return name + " | " +short_name;
+    }
+
 }

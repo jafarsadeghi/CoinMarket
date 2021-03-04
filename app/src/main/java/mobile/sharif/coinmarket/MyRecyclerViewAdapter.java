@@ -12,12 +12,12 @@ import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-    private List<String> mData;
+    private List<Coin> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    MyRecyclerViewAdapter(Context context, List<String> data) {
+    MyRecyclerViewAdapter(Context context, List<Coin> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
     }
@@ -32,8 +32,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String animal = mData.get(position);
-        holder.myTextView.setText(animal);
+        Coin coin = mData.get(position);
+        holder.name.setText(coin.getDisplay_name());
+        holder.price.setText(coin.getPrice());
+        holder.one_hour.setText(coin.getOne_hour_change());
+        holder.one_day.setText(coin.getOne_day_change());
+        holder.seven_day.setText(coin.getSeven_day_change());
+
     }
 
     // total number of rows
@@ -45,11 +50,19 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
+        TextView name;
+        TextView price;
+        TextView one_hour;
+        TextView one_day;
+        TextView seven_day;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.textView);
+            name = itemView.findViewById(R.id.textView);
+            price = itemView.findViewById(R.id.textView2);
+            one_hour = itemView.findViewById(R.id.textView3);
+            one_day = itemView.findViewById(R.id.textView4);
+            seven_day = itemView.findViewById(R.id.textView5);
             itemView.setOnClickListener(this);
         }
 
@@ -61,7 +74,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     // convenience method for getting data at click position
     String getItem(int id) {
-        return mData.get(id);
+        return mData.get(id).getName();
     }
 
     // allows clicks events to be caught

@@ -51,17 +51,17 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 //            }
 //        });
 
-        ArrayList<String> animalNames = new ArrayList<>();
-        animalNames.add("Horse");
-        animalNames.add("Cow");
-        animalNames.add("Camel");
-        animalNames.add("Sheep");
-        animalNames.add("Goat");
+        ArrayList<Coin> coins = new ArrayList<>();
+        coins.add(btc);
+        coins.add(eth);
+        coins.add(ltc);
+        coins.add(ada);
+        coins.add(dot);
 
         // set up the RecyclerView
         recyclerView = findViewById(R.id.coinlist);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MyRecyclerViewAdapter(this, animalNames);
+        adapter = new MyRecyclerViewAdapter(this, coins);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
     }
