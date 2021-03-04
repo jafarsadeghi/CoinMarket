@@ -62,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         adapter = new MyRecyclerViewAdapter(this, coins);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
+
+        APIInterface api = new APIInterface();
+        api.getCoins();
     }
 
     @Override
