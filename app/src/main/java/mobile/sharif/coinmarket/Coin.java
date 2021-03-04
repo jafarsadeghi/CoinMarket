@@ -3,14 +3,22 @@ package mobile.sharif.coinmarket;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
+
 public class Coin {
     private long row_id;
     private String name;
     private String short_name;
-    private String price;
+    private int price;
     private String one_hour_change;
     private String one_day_change;
     private String seven_day_change;
+
+    public Coin(String name, String short_name, int price) {
+        this.name = name;
+        this.short_name = short_name;
+        this.price = price;
+    }
 
     public Coin(String name, String short_name) {
         this.name = name;
@@ -48,7 +56,7 @@ public class Coin {
     }
 
     String getPrice() {
-        return price;
+        return price + "$";
     }
 
     String getOne_hour_change() {
@@ -64,7 +72,7 @@ public class Coin {
     }
 
     String getDisplay_name() {
-        return name + " | " +short_name;
+        return short_name.toUpperCase() + " | " + name;
     }
 
 }

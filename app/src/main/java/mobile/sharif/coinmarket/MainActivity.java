@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 //                Toast.makeText(MainActivity.this, "Reloading", Toast.LENGTH_SHORT).show();
 //            }
 //        });
-        Coin btc = new Coin("bitcoin", "btc");
+        Coin btc = new Coin("bitcoin", "btc", 16000);
         Coin eth = new Coin("Etreum", "eth");
         Coin ltc = new Coin("Litecoin ", "ltc");
         Coin ada = new Coin("Cardano", "ada");
