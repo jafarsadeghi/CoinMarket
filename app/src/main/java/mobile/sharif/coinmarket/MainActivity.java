@@ -8,9 +8,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -29,6 +32,9 @@ import javax.xml.parsers.FactoryConfigurationError;
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
     String db_name = "coin_db";
     Button button;
+    Handler handler = new Handler();
+    ProgressBar progressBar;
+    int prog= 0;
 
     MyRecyclerViewAdapter adapter;
     RecyclerView recyclerView;
