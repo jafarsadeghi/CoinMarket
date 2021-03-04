@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     MyRecyclerViewAdapter adapter;
     RecyclerView recyclerView;
+    public static final int REQ_CODE = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +64,12 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         recyclerView.setAdapter(adapter);
     }
 
-        @Override
-        public void onItemClick(View view, int position) {
-            Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
-        }
+    @Override
+    public void onItemClick(View view, int position) {
+        Intent detailIntent = new Intent(this, DetailPage.class);
+        detailIntent.putExtra("coin", adapter.getItem(position));
+        startActivityForResult(detailIntent, REQ_CODE);
+        Toast.makeText(this, "You clicked " + adapter.getItem(position).getName() + " on row number " + position, Toast.LENGTH_SHORT).show();
+    }
 
 }

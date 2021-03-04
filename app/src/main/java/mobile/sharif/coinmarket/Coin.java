@@ -3,7 +3,9 @@ package mobile.sharif.coinmarket;
 import android.view.View;
 import android.widget.TextView;
 
-public class Coin {
+import java.io.Serializable;
+
+public class Coin  implements Serializable {
     private long row_id;
     private String name;
     private String short_name;
@@ -11,6 +13,10 @@ public class Coin {
     private String one_hour_change;
     private String one_day_change;
     private String seven_day_change;
+
+    public Coin() {
+
+    }
 
     public Coin(String name, String short_name, int price) {
         this.name = name;
