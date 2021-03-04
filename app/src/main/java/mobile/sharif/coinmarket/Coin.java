@@ -3,8 +3,6 @@ package mobile.sharif.coinmarket;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.NumberFormat;
-
 public class Coin {
     private long row_id;
     private String name;

@@ -28,14 +28,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        button = findViewById(R.id.button);
-//        button = findViewById(R.id.button);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Toast.makeText(MainActivity.this, "Reloading", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        button = findViewById(R.id.button);
+        button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Reloading", Toast.LENGTH_SHORT).show();
+            }
+        });
         Coin btc = new Coin("bitcoin", "btc", 16000);
         Coin eth = new Coin("Etreum", "eth");
         Coin ltc = new Coin("Litecoin ", "ltc");
@@ -44,19 +44,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Coin xlm = new Coin("Stellar", "xlm");
         Coin iota = new Coin("IOTA", "IOTA");
 
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Toast.makeText(MainActivity.this, "Reloading", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
         ArrayList<Coin> coins = new ArrayList<>();
         coins.add(btc);
         coins.add(eth);
         coins.add(ltc);
         coins.add(ada);
         coins.add(dot);
+        coins.add(xlm);
+        coins.add(iota);
 
         // set up the RecyclerView
         recyclerView = findViewById(R.id.coinlist);
