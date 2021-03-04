@@ -1,53 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/coin1"
-        layout="@layout/single_coin"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/coinlist"
         android:layout_width="match_parent"
-        android:layout_height="72dp" />
+        android:layout_height="match_parent"/>
 
-    <include
-        android:id="@+id/coin2"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin3"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin4"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin5"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin6"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <include
-        android:id="@+id/coin7"
-        layout="@layout/single_coin"
-        android:layout_width="match_parent"
-        android:layout_height="72dp" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/reload_button" />
-</LinearLayout>
+</RelativeLayout>
