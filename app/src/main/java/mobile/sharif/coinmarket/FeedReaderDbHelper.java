@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -59,6 +60,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     void putCoin(SQLiteDatabase db, Coin coin) {
+        if (hasCoin(db, coin)) {
+            return;
+        }
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FeedReaderDbHelper.COLUMN_NAME, coin.getName());
@@ -67,7 +71,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         values.put(FeedReaderDbHelper.COLUMN_ONE_HOUR, coin.getOne_hour_change());
         values.put(FeedReaderDbHelper.COLUMN_ONE_DAY, coin.getOne_day_change());
         values.put(FeedReaderDbHelper.COLUMN_SEVEN_DAY, coin.getSeven_day_change());
-        if (coin.getLogo() != null){
+        if (coin.getLogo() != null) {
             values.put(FeedReaderDbHelper.COLUMN_LOGO, coin.getLogo());
         }
         // Insert the new row, returning the primary key value of the new row
@@ -99,5 +103,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return coins;
     }
 
+    private boolean hasCoin(SQLiteDatabase db, Coin coin) {
+        String selection = COLUMN_NAME + " = ?";
+        String[] selectionArgs = {coin.getName()};
+
+        Cursor cursor = db.query(TABLE_NAME, null, selection, selectionArgs,
+                null, null, null);
+        boolean has_coin = cursor.getCount() > 0;
+        cursor.close();
+        return has_coin;
+    }
 }
 

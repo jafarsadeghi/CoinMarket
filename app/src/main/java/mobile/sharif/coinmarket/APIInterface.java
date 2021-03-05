@@ -25,6 +25,8 @@ class APIInterface {
     public APIInterface(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
         this.db = db;
         this.dbHelper = dbHelper;
+        String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
+        coin_info_api_key = backup_api_key;
     }
 
     private void extractCoinFromResponse(String response) {
