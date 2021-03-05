@@ -20,7 +20,7 @@ import okhttp3.Response;
 class APIInterface {
 
     private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
-    ArrayList<Coin> coins = new ArrayList<>();
+
     private void extractCoinFromResponse(String response, SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
@@ -43,7 +43,7 @@ class APIInterface {
         }
     }
 
-    ArrayList<Coin> getCoins(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
+    void retrieveCoinInformation(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
@@ -73,7 +73,6 @@ class APIInterface {
                 }
             }
         });
-        return coins;
     }
 }
 

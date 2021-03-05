@@ -4,27 +4,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-import com.github.mikephil.charting.charts.CandleStickChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.google.android.gms.security.ProviderInstaller;
 
 import javax.net.ssl.SSLContext;
@@ -54,17 +45,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         // Button Configuration
         button = findViewById(R.id.button);
         button.setOnClickListener(this);
-        // ------------------- PASSING DATA -----------------------
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null ) {
-            if (extras.containsKey("coins")) {
-                Intent intent = getIntent();
-                Bundle args = intent.getBundleExtra("coins");
-                ArrayList<Coin> object = (ArrayList<Coin>) args.getSerializable("ARRAYLIST");
-                coins.addAll(object);
-            }
-        }
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
         try {
             ProviderInstaller.installIfNeeded(getApplicationContext());
@@ -81,10 +61,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
 
-        // method to insert coin in db
-//        dbHelper.putCoin(db, btc);
-        // method to get coins
-        coins = dbHelper.getAllCoins(db, dbHelper);
+//        dbHelper.putCoin(db, btc); // method to insert coin in db
+
+        coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
 
         // ------------------- RECYCLER VIEW -----------------------
         recyclerView = findViewById(R.id.coinlist);
@@ -106,12 +85,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     public void onClick(View view) {
         if (view.getId() == R.id.button) {
             APIInterface api = new APIInterface();
-            Intent resume_intent = new Intent(MainActivity.this, MainActivity.class);
-            Bundle args = new Bundle();
-            ArrayList<Coin> c = api.getCoins(db, dbHelper);
-            args.putSerializable("ARRAYLIST", c);
-            resume_intent.putExtra("coins", args);
-            startActivityForResult(resume_intent, REQ_RESUME);
+            api.retrieveCoinInformation(db, dbHelper);
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
         }
     }
 }
