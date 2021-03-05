@@ -69,9 +69,8 @@ class APIInterface {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     String resp = response.body().string();
-                    Log.i("Success", "CHECK point");
                     extractCoinFromResponse(resp);
-                    Log.i("Success", "CHECK point 1");
+                    Log.i("WORK", "API Call has Been finished");
                 }
             }
         });

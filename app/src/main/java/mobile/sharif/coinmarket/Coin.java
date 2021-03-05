@@ -71,16 +71,20 @@ public class Coin implements Serializable {
         return price + "$";
     }
 
-    String getOne_hour_change() {
-        return String.valueOf(one_hour_change);
+    Double getPriceShow() {
+        return price ;
     }
 
-    String getOne_day_change() {
-        return String.valueOf(one_day_change);
+    Double getOne_hour_change() {
+        return one_hour_change;
     }
 
-    String getSeven_day_change() {
-        return String.valueOf(seven_day_change);
+    Double getOne_day_change() {
+        return one_day_change;
+    }
+
+    Double getSeven_day_change() {
+        return seven_day_change;
     }
 
     String getDisplay_name() {

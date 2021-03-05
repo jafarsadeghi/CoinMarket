@@ -34,10 +34,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         Coin coin = mData.get(position);
         holder.name.setText(coin.getDisplay_name());
-        holder.price.setText(coin.getPrice());
-        holder.one_hour.setText(coin.getOne_hour_change());
-        holder.one_day.setText(coin.getOne_day_change());
-        holder.seven_day.setText(coin.getSeven_day_change());
+        holder.price.setText(String.valueOf(coin.getPriceShow()));
+        holder.one_hour.setText(String.valueOf(coin.getOne_hour_change()));
+        holder.one_day.setText(String.valueOf(coin.getOne_day_change()));
+        holder.seven_day.setText(String.valueOf(coin.getSeven_day_change()));
 
     }
 
