@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "coin";
@@ -60,6 +59,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     void putCoin(SQLiteDatabase db, Coin coin) {
+        if (getCoinByName(db, coin.getName()) != null){
+            return;
+        }
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FeedReaderDbHelper.COLUMN_NAME, coin.getName());
@@ -96,6 +98,24 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return coins;
+    }
+
+    Coin getCoinByName(SQLiteDatabase db, String name ){
+
+        String selection = COLUMN_NAME + " = ?";
+        String[] selectionArgs = { name };
+
+
+        Cursor cursor = db.query(
+                TABLE_NAME,   // The table to query
+                null,           // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,            // don't group the rows
+                null,             // don't filter by row groups
+                null            // The sort order
+        );
+        return getCoin(cursor);
     }
 
 }

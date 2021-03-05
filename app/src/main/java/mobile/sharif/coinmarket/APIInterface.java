@@ -2,8 +2,6 @@ package mobile.sharif.coinmarket;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -71,7 +69,7 @@ class APIInterface {
                 } else {
                     String resp = response.body().string();
                     extractCoinFromResponse(resp,db,dbHelper);
-                    Log.i("WORK", "API Call has Been finished");
+                    Log.i("API", "API Call has Been finished");
                 }
             }
         });
