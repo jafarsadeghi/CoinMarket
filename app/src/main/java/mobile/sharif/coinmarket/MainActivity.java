@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("MainLogs" , "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -108,4 +111,23 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             }
         }
     }
+
+    @Override
+    protected void onStart() {
+        Log.i("MainLogs" , "onStart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.i("MainLogs" , "onStop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.i("MainLogs" , "onRestart");
+        super.onRestart();
+    }
+
 }
