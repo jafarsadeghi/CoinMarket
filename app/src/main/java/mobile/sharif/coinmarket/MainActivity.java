@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -60,7 +61,12 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
         coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
-
+        if (coins.isEmpty()){
+            new AlertDialog.Builder(this).setMessage(R.string.not_internet)
+                    .setPositiveButton(R.string.reload, (dialog, id) -> {
+                        button.callOnClick();
+                    }).show();
+        }
         Log.i("COINS", coins.toString());
         // ------------------- RECYCLER VIEW -----------------------
         recyclerView = findViewById(R.id.coinlist);

@@ -2,6 +2,7 @@
     <string name="app_name">Coin Market</string>
     <string name="reload_button">Reload</string>
     <string name="test">Test</string>
-    <string name="submit">Reload</string>
     <string name="title_activity_detail_page">DetailPage</string>
+    <string name="not_internet">No Internet Connection. Please Reload</string>
+    <string name="reload">Reload</string>
 </resources>
