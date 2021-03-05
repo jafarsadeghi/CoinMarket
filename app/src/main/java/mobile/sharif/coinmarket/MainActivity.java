@@ -30,8 +30,7 @@ import com.google.android.gms.security.ProviderInstaller;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
-    String db_name = "coin_db";
+public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button button;
     Handler handler = new Handler();
     ProgressBar progressBar;
@@ -41,39 +40,32 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     MyRecyclerViewAdapter adapter;
     RecyclerView recyclerView;
     public static final int REQ_CODE = 11;
-    public static final int RESUME_REQ = 12;
+    public static final int REQ_RESUME = 11;
+
+    FeedReaderDbHelper dbHelper;
+    SQLiteDatabase db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Button Configuration
         button = findViewById(R.id.button);
-        button.setOnClickListener(view -> {
-            APIInterface api = new APIInterface();
-            Intent resume_intent = new Intent(MainActivity.this, MainActivity.class);
-            Bundle args = new Bundle();
-            ArrayList<Coin> c = api.getCoins();
-            args.putSerializable("ARRAYLIST", c);
-            resume_intent.putExtra("BUNDLE", args);
-        });
-
+        button.setOnClickListener(this);
+        // ------------------- PASSING DATA -----------------------
         Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey("coins")) {
-            Intent intent = getIntent();
-            Bundle args = intent.getBundleExtra("BUNDLE");
-            ArrayList<Coin> object = (ArrayList<Coin>) args.getSerializable("ARRAYLIST");
-            coins.addAll(object);
-            adapter.notifyDataSetChanged();
-        }
 
-        // set up the RecyclerView
-        recyclerView = findViewById(R.id.coinlist);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MyRecyclerViewAdapter(this, coins);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
-        // handle ssl for https
+        if (extras != null ) {
+            if (extras.containsKey("coins")) {
+                Intent intent = getIntent();
+                Bundle args = intent.getBundleExtra("coins");
+                ArrayList<Coin> object = (ArrayList<Coin>) args.getSerializable("ARRAYLIST");
+                coins.addAll(object);
+            }
+        }
+        // ------------------- SSL (HTTPS) PROTOCOL -----------------------
         try {
             ProviderInstaller.installIfNeeded(getApplicationContext());
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
@@ -85,15 +77,21 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         // ------------------- DB -----------------------
         Coin btc = new Coin("Bitcoin", "BTC", 1500.53);
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(this);
+        dbHelper = new FeedReaderDbHelper(this);
         // Gets the data repository in write mode
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db = dbHelper.getWritableDatabase();
 
         // method to insert coin in db
-        dbHelper.putCoin(db, btc);
+//        dbHelper.putCoin(db, btc);
         // method to get coins
-        dbHelper.getAllCoins(db, dbHelper);
+        coins = dbHelper.getAllCoins(db, dbHelper);
 
+        // ------------------- RECYCLER VIEW -----------------------
+        recyclerView = findViewById(R.id.coinlist);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new MyRecyclerViewAdapter(this, coins);
+        adapter.setClickListener(this);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -104,4 +102,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Toast.makeText(this, "You clicked " + adapter.getItem(position).getName() + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.button) {
+            APIInterface api = new APIInterface();
+            Intent resume_intent = new Intent(MainActivity.this, MainActivity.class);
+            Bundle args = new Bundle();
+            ArrayList<Coin> c = api.getCoins(db, dbHelper);
+            args.putSerializable("ARRAYLIST", c);
+            resume_intent.putExtra("coins", args);
+            startActivityForResult(resume_intent, REQ_RESUME);
+        }
+    }
 }

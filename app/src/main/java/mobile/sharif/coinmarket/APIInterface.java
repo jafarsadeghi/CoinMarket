@@ -1,5 +1,6 @@
 package mobile.sharif.coinmarket;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -22,7 +23,7 @@ class APIInterface {
 
     private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     ArrayList<Coin> coins = new ArrayList<>();
-    private void extractCoinFromResponse(String response) {
+    private void extractCoinFromResponse(String response, SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
             for (int i = 0; i < 10; i++)
@@ -36,7 +37,7 @@ class APIInterface {
                 Double one_day = changes.getDouble("percent_change_24h");
                 Double seven_day = changes.getDouble("percent_change_7d");
                 Coin coin = new Coin(name,short_name,price,one_hour,one_day,seven_day);
-                coins.add(coin);
+                dbHelper.putCoin(db, coin);
             }
 
         } catch (Exception e){
@@ -44,7 +45,7 @@ class APIInterface {
         }
     }
 
-    ArrayList<Coin> getCoins() {
+    ArrayList<Coin> getCoins(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
@@ -69,7 +70,7 @@ class APIInterface {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     String resp = response.body().string();
-                    extractCoinFromResponse(resp);
+                    extractCoinFromResponse(resp,db,dbHelper);
                     Log.i("WORK", "API Call has Been finished");
                 }
             }
