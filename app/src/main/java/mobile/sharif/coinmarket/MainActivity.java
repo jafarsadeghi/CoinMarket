@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     FeedReaderDbHelper dbHelper;
     SQLiteDatabase db;
-
+    boolean threadcomplete = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,15 +56,13 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
 
         // ------------------- DB -----------------------
-        Coin btc = new Coin("Bitcoin", "BTC", 1500.53);
         dbHelper = new FeedReaderDbHelper(this);
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
 
-//        dbHelper.putCoin(db, btc); // method to insert coin in db
-
         coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
 
+        Log.i("COINS", coins.toString());
         // ------------------- RECYCLER VIEW -----------------------
         recyclerView = findViewById(R.id.coinlist);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -84,11 +82,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.button) {
-            APIInterface api = new APIInterface();
-            api.retrieveCoinInformation(db, dbHelper);
-            Intent intent = getIntent();
-            finish();
-            startActivity(intent);
+            APIInterface api = new APIInterface(db, dbHelper);
+            Runnable newthread = () -> {
+                Log.i("BIG","start big compute");
+                api.retrieveCoinFromApi();
+                threadcomplete = true;
+            };
+
+            Thread t = new Thread(newthread);
+            newthread.run();
+
+            boolean b = true;
+            while (b) {
+                if (threadcomplete) {
+                    b = false;
+                    Intent intent = getIntent();
+                    finish();
+                    startActivity(intent);
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     private static final String COLUMN_ONE_HOUR = "one_hour";
     private static final String COLUMN_ONE_DAY = "one_day";
     private static final String COLUMN_SEVEN_DAY = "seven_day";
+    private static final String COLUMN_LOGO_PATH = "logo_path";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "coins.db";
@@ -29,7 +31,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     COLUMN_PRICE + " REAL," +
                     COLUMN_ONE_HOUR + " REAL," +
                     COLUMN_ONE_DAY + " REAL," +
-                    COLUMN_SEVEN_DAY + " REAL)";
+                    COLUMN_SEVEN_DAY + " REAL," +
+                    COLUMN_LOGO_PATH + " TEXT)";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_NAME;
     // If you change the database schema, you must increment the database version.
@@ -44,8 +47,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
         db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
@@ -59,9 +60,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     void putCoin(SQLiteDatabase db, Coin coin) {
-        if (getCoinByName(db, coin.getName()) != null){
-            return;
-        }
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FeedReaderDbHelper.COLUMN_NAME, coin.getName());
@@ -70,7 +68,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         values.put(FeedReaderDbHelper.COLUMN_ONE_HOUR, coin.getOne_hour_change());
         values.put(FeedReaderDbHelper.COLUMN_ONE_DAY, coin.getOne_day_change());
         values.put(FeedReaderDbHelper.COLUMN_SEVEN_DAY, coin.getSeven_day_change());
-
+        if (coin.getLogo_path() != null){
+            values.put(FeedReaderDbHelper.COLUMN_LOGO_PATH, coin.getLogo_path());
+        }
         // Insert the new row, returning the primary key value of the new row
         long row_id = db.insert(FeedReaderDbHelper.TABLE_NAME, null, values);
         coin.setRow_id(row_id);
@@ -83,7 +83,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Double one_hour = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_ONE_HOUR));
         Double one_day = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_ONE_DAY));
         Double seven_day = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_SEVEN_DAY));
-
         return new Coin(name, short_name, price, one_hour, one_day, seven_day);
     }
 
@@ -98,24 +97,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return coins;
-    }
-
-    Coin getCoinByName(SQLiteDatabase db, String name ){
-
-        String selection = COLUMN_NAME + " = ?";
-        String[] selectionArgs = { name };
-
-
-        Cursor cursor = db.query(
-                TABLE_NAME,   // The table to query
-                null,           // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,            // don't group the rows
-                null,             // don't filter by row groups
-                null            // The sort order
-        );
-        return getCoin(cursor);
     }
 
 }

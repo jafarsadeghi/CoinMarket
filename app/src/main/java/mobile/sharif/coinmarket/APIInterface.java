@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 import okhttp3.Call;
@@ -20,12 +19,18 @@ import okhttp3.Response;
 class APIInterface {
 
     private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
+    private SQLiteDatabase db;
+    private FeedReaderDbHelper dbHelper;
 
-    private void extractCoinFromResponse(String response, SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
+    public APIInterface(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
+        this.db = db;
+        this.dbHelper = dbHelper;
+    }
+
+    private void extractCoinFromResponse(String response) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String name = obj.getString("name");
                 String short_name = obj.getString("symbol");
@@ -34,27 +39,28 @@ class APIInterface {
                 Double one_hour = changes.getDouble("percent_change_1h");
                 Double one_day = changes.getDouble("percent_change_24h");
                 Double seven_day = changes.getDouble("percent_change_7d");
-                Coin coin = new Coin(name,short_name,price,one_hour,one_day,seven_day);
-                dbHelper.putCoin(db, coin);
+                Coin coin = new Coin(name, short_name, price, one_hour, one_day, seven_day);
+                retrieveCoinPicFromApi(coin);
             }
-
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
     }
 
-    void retrieveCoinInformation(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
-
-        OkHttpClient okHttpClient = new OkHttpClient();
-        String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(uri).newBuilder();
-
-        String url = urlBuilder.build().toString();
-
-        final Request request = new Request.Builder().url(url)
+    Request getCustomRequest(String url) {
+        return new Request.Builder().url(url)
                 .addHeader("X-CMC_PRO_API_KEY", coin_info_api_key)
                 .addHeader("Accept", "application/json")
                 .build();
+    }
+
+    void retrieveCoinFromApi() {
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
+        String url = HttpUrl.parse(uri).newBuilder().build().toString();
+
+        Request request = getCustomRequest(url);
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -68,8 +74,46 @@ class APIInterface {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     String resp = response.body().string();
-                    extractCoinFromResponse(resp,db,dbHelper);
-                    Log.i("API", "API Call has Been finished");
+                    extractCoinFromResponse(resp);
+                }
+            }
+        });
+    }
+
+    private void extractCoinInfoFromResponse(String response, Coin coin) {
+        try {
+            String logo_path = new JSONObject(response).getJSONObject("data")
+                    .getJSONObject(coin.getShort_name()).getString("logo");
+            coin.setLogo_path(logo_path);
+            dbHelper.putCoin(db, coin);
+        } catch (Exception e) {
+            Log.i("JSON", e.toString());
+        }
+    }
+
+
+    private void retrieveCoinPicFromApi(Coin coin) {
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info";
+        String url = HttpUrl.parse(uri).newBuilder()
+                .addQueryParameter("symbol", coin.getShort_name()).build().toString();
+
+        Request request = getCustomRequest(url);
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.v("API", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    String resp = response.body().string();
+                    extractCoinInfoFromResponse(resp, coin);
                 }
             }
         });

@@ -13,6 +13,7 @@ public class Coin implements Serializable {
     private Double one_hour_change;
     private Double one_day_change;
     private Double seven_day_change;
+    private String logo_path;
 
     public Coin() {
     }
@@ -23,9 +24,9 @@ public class Coin implements Serializable {
         this.price = price;
     }
 
-    public Coin(String name, String short_name) {
+    public Coin(String name, String logo_path) {
         this.name = name;
-        this.short_name = short_name;
+        this.logo_path = logo_path;
     }
 
     public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change) {
@@ -35,20 +36,6 @@ public class Coin implements Serializable {
         this.one_hour_change = one_hour_change;
         this.one_day_change = one_day_change;
         this.seven_day_change = seven_day_change;
-    }
-
-    public void fill_view(View view) {
-        TextView name = view.findViewById(R.id.textView);
-        String display_name = this.name + " | " + this.short_name;
-        name.setText(display_name);
-        TextView price = view.findViewById(R.id.textView2);
-        price.setText(String.valueOf(this.price));
-        TextView one_hour = view.findViewById(R.id.textView3);
-        one_hour.setText(String.valueOf(this.one_hour_change));
-        TextView one_day = view.findViewById(R.id.textView4);
-        one_day.setText(String.valueOf(this.one_day_change));
-        TextView seven_day = view.findViewById(R.id.textView5);
-        seven_day.setText(String.valueOf(this.seven_day_change));
     }
 
     public long getRow_id() {
@@ -91,4 +78,11 @@ public class Coin implements Serializable {
         return short_name.toUpperCase() + " | " + name;
     }
 
+    public String getLogo_path() {
+        return logo_path;
+    }
+
+    public void setLogo_path(String logo_path) {
+        this.logo_path = logo_path;
+    }
 }

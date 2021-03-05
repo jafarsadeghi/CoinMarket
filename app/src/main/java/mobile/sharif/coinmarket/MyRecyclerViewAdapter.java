@@ -1,9 +1,11 @@
 package mobile.sharif.coinmarket;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,10 +17,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private List<Coin> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+    private Context context;
 
     // data is passed into the constructor
     MyRecyclerViewAdapter(Context context, List<Coin> data) {
         this.mInflater = LayoutInflater.from(context);
+        this.context = context;
         this.mData = data;
     }
 
@@ -38,7 +42,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.one_hour.setText(String.valueOf(coin.getOne_hour_change()));
         holder.one_day.setText(String.valueOf(coin.getOne_day_change()));
         holder.seven_day.setText(String.valueOf(coin.getSeven_day_change()));
-
+        Log.i("IMG","start rendering");
+        Log.i("IMG","Logo path = " + coin.getLogo_path());
+        GlideApp.with(context).load(coin.getLogo_path()).into(holder.logo);
+        Log.i("IMG","end rendering");
     }
 
     // total number of rows
@@ -55,6 +62,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         TextView one_hour;
         TextView one_day;
         TextView seven_day;
+        ImageView logo;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -63,6 +71,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             one_hour = itemView.findViewById(R.id.textView3);
             one_day = itemView.findViewById(R.id.textView4);
             seven_day = itemView.findViewById(R.id.textView5);
+            logo = itemView.findViewById(R.id.imageView);
             itemView.setOnClickListener(this);
         }
 
