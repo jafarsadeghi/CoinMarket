@@ -42,10 +42,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.one_hour.setText(String.valueOf(coin.getOne_hour_change()));
         holder.one_day.setText(String.valueOf(coin.getOne_day_change()));
         holder.seven_day.setText(String.valueOf(coin.getSeven_day_change()));
-        Log.i("IMG","start rendering");
-        Log.i("IMG","Logo path = " + coin.getLogo_path());
-        GlideApp.with(context).load(coin.getLogo_path()).into(holder.logo);
-        Log.i("IMG","end rendering");
+        GlideApp.with(context).load(coin.getLogo()).into(holder.logo);
     }
 
     // total number of rows

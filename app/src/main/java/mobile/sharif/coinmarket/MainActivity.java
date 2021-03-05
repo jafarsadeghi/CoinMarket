@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         dbHelper = new FeedReaderDbHelper(this);
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
-
         coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
 
         Log.i("COINS", coins.toString());

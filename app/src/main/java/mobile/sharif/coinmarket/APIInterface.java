@@ -82,9 +82,9 @@ class APIInterface {
 
     private void extractCoinInfoFromResponse(String response, Coin coin) {
         try {
-            String logo_path = new JSONObject(response).getJSONObject("data")
+            String logo = new JSONObject(response).getJSONObject("data")
                     .getJSONObject(coin.getShort_name()).getString("logo");
-            coin.setLogo_path(logo_path);
+            coin.setLogo(logo);
             dbHelper.putCoin(db, coin);
         } catch (Exception e) {
             Log.i("JSON", e.toString());

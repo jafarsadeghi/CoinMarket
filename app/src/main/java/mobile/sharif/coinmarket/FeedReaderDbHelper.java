@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -18,7 +17,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     private static final String COLUMN_ONE_HOUR = "one_hour";
     private static final String COLUMN_ONE_DAY = "one_day";
     private static final String COLUMN_SEVEN_DAY = "seven_day";
-    private static final String COLUMN_LOGO_PATH = "logo_path";
+    private static final String COLUMN_LOGO = "logo";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "coins.db";
@@ -32,7 +31,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     COLUMN_ONE_HOUR + " REAL," +
                     COLUMN_ONE_DAY + " REAL," +
                     COLUMN_SEVEN_DAY + " REAL," +
-                    COLUMN_LOGO_PATH + " TEXT)";
+                    COLUMN_LOGO + " TEXT)";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_NAME;
     // If you change the database schema, you must increment the database version.
@@ -68,8 +67,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         values.put(FeedReaderDbHelper.COLUMN_ONE_HOUR, coin.getOne_hour_change());
         values.put(FeedReaderDbHelper.COLUMN_ONE_DAY, coin.getOne_day_change());
         values.put(FeedReaderDbHelper.COLUMN_SEVEN_DAY, coin.getSeven_day_change());
-        if (coin.getLogo_path() != null){
-            values.put(FeedReaderDbHelper.COLUMN_LOGO_PATH, coin.getLogo_path());
+        if (coin.getLogo() != null){
+            values.put(FeedReaderDbHelper.COLUMN_LOGO, coin.getLogo());
         }
         // Insert the new row, returning the primary key value of the new row
         long row_id = db.insert(FeedReaderDbHelper.TABLE_NAME, null, values);
@@ -83,7 +82,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Double one_hour = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_ONE_HOUR));
         Double one_day = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_ONE_DAY));
         Double seven_day = cursor.getDouble(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_SEVEN_DAY));
-        return new Coin(name, short_name, price, one_hour, one_day, seven_day);
+        String logo = cursor.getString(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.COLUMN_LOGO));
+        return new Coin(name, short_name, price, one_hour, one_day, seven_day, logo);
     }
 
     ArrayList<Coin> getAllCoins(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
