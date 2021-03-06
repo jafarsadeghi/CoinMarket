@@ -1,6 +1,7 @@
 package mobile.sharif.coinmarket;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,9 +39,24 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         Coin coin = mData.get(position);
         holder.name.setText(coin.getDisplay_name());
         holder.price.setText(String.valueOf(coin.getPriceShow()));
-        holder.one_hour.setText(String.valueOf(coin.getOne_hour_change()));
-        holder.one_day.setText(String.valueOf(coin.getOne_day_change()));
-        holder.seven_day.setText(String.valueOf(coin.getSeven_day_change()));
+        holder.one_hour.setText(String.valueOf(coin.showOne_hour_change()));
+        if (coin.getOne_hour_change() < 0){
+            holder.one_hour.setTextColor(Color.RED);
+        }else{
+            holder.one_hour.setTextColor(Color.GREEN);
+        }
+        holder.one_day.setText(String.valueOf(coin.showOne_day_change()));
+        if (coin.getOne_day_change() < 0){
+            holder.one_day.setTextColor(Color.RED);
+        }else{
+            holder.one_day.setTextColor(Color.GREEN);
+        }
+        holder.seven_day.setText(String.valueOf(coin.showSeven_hour_change()));
+        if (coin.getSeven_day_change() < 0){
+            holder.seven_day.setTextColor(Color.RED);
+        }else{
+            holder.seven_day.setTextColor(Color.GREEN);
+        }
         GlideApp.with(context).load(coin.getLogo()).into(holder.logo);
     }
 
