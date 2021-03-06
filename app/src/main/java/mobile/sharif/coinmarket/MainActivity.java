@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //testing detailed activity
+        Intent detailIntent = new Intent(this, DetailPage.class);
+        startActivity(detailIntent);
+
         // Button Configuration
         button = findViewById(R.id.button);
         button.setOnClickListener(this);
@@ -66,9 +70,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
         if (coins.isEmpty()){
             new AlertDialog.Builder(this).setMessage(R.string.not_internet)
-                    .setPositiveButton(R.string.reload, (dialog, id) -> {
-                        button.callOnClick();
-                    }).show();
+                    .setPositiveButton(R.string.reload, (dialog, id) -> button.callOnClick()).show();
         }
         Log.i("COINS", coins.toString());
         // ------------------- RECYCLER VIEW -----------------------
