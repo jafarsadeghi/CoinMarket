@@ -32,7 +32,7 @@ public class DetailPage extends AppCompatActivity {
                 coin = (Coin) getIntent().getSerializableExtra("coin");
 */
 
-        CandleStickChart candleStickChart = findViewById(R.id.candle_stick);
+        CandleStickChart candleStickChart = findViewById(R.id.candle_stick_chart);
         candleStickChart.setHighlightPerDragEnabled(true);
 
         candleStickChart.setDrawBorders(true);
@@ -48,26 +48,22 @@ public class DetailPage extends AppCompatActivity {
         XAxis xAxis = candleStickChart.getXAxis();
 
         xAxis.setDrawGridLines(false);// disable x axis grid lines
-        xAxis.setDrawLabels(false);
-        rightAxis.setTextColor(Color.WHITE);
-        yAxis.setDrawLabels(false);
+        xAxis.setDrawLabels(true);
+        rightAxis.setTextColor(Color.BLACK);
+        yAxis.setDrawLabels(true);
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setAvoidFirstLastClipping(true);
 
         Legend l = candleStickChart.getLegend();
-        l.setEnabled(false);
-        Toast.makeText(this, "firstStepDone", Toast.LENGTH_LONG).show();
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        l.setEnabled(true);
+
         ArrayList<CandleEntry> yValsCandleStick= new ArrayList<>();
         yValsCandleStick.add(new CandleEntry(0, 225.0f, 219.84f, 224.94f, 221.07f));
         yValsCandleStick.add(new CandleEntry(1, 228.35f, 222.57f, 223.52f, 226.41f));
         yValsCandleStick.add(new CandleEntry(2, 226.84f,  222.52f, 225.75f, 223.84f));
         yValsCandleStick.add(new CandleEntry(3, 222.95f, 217.27f, 222.15f, 217.88f));
+        yValsCandleStick.add(new CandleEntry(4 , 225f , 220f , 221f , 225f));
 
         CandleDataSet set1 = new CandleDataSet(yValsCandleStick, "DataSet 1");
         set1.setColor(Color.rgb(80, 80, 80));
@@ -78,7 +74,7 @@ public class DetailPage extends AppCompatActivity {
         set1.setIncreasingColor(getResources().getColor(R.color.colorAccent));
         set1.setIncreasingPaintStyle(Paint.Style.FILL);
         set1.setNeutralColor(Color.LTGRAY);
-        set1.setDrawValues(false);
+        set1.setDrawValues(true);
 
 
 
