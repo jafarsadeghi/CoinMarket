@@ -4,14 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     Handler handler = new Handler();
     ProgressBar progressBar;
     int prog = 0;
+    private int i = 0;
+    private Handler hdlr = new Handler();
     ArrayList<Coin> coins = new ArrayList<>();
 
     MyRecyclerViewAdapter adapter;
@@ -42,11 +44,12 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i("MainLogs" , "onCreate");
+        Log.i("MainLogs", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Button Configuration
+        progressBar = findViewById(R.id.pBar);
         button = findViewById(R.id.button);
         button.setOnClickListener(this);
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
@@ -63,8 +66,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         dbHelper = new FeedReaderDbHelper(this);
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
-        coins = dbHelper.getAllCoins(db, dbHelper); // method to get coins
-        if (coins.isEmpty()){
+
+        Runnable runnable = () -> coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+
+        runnable.run();
+        if (coins.isEmpty()) {
             new AlertDialog.Builder(this).setMessage(R.string.not_internet)
                     .setPositiveButton(R.string.reload, (dialog, id) -> {
                         button.callOnClick();
@@ -89,45 +95,59 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.button) {
-            APIInterface api = new APIInterface(db, dbHelper);
-            Runnable newthread = () -> {
-                Log.i("BIG","start big compute");
-                api.retrieveCoinFromApi();
-                threadcomplete = true;
-            };
-
-            Thread t = new Thread(newthread);
-            newthread.run();
-
-            boolean b = true;
-            while (b) {
-                if (threadcomplete) {
-                    b = false;
-                    Intent intent = getIntent();
-                    finish();
-                    startActivity(intent);
-                }
+        APIInterface api = new APIInterface(db, dbHelper);
+        Runnable newthread = () -> {
+            Log.i("BIG", "start big compute");
+            api.retrieveCoinFromApi(progressBar);
+            coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+            progressBar.setProgress(0);
+            Log.i("BIG", "end of big computation");
+            threadcomplete = true;
+        };
+        newthread.run();
+        boolean untill_end = true;
+        while (untill_end) {
+            if (threadcomplete) {
+                untill_end = false;
             }
         }
+
     }
 
     @Override
     protected void onStart() {
-        Log.i("MainLogs" , "onStart");
+        Log.i("MainLogs", "onStart");
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        Log.i("MainLogs" , "onStop");
+        Log.i("MainLogs", "onStop");
         super.onStop();
     }
 
     @Override
     protected void onRestart() {
-        Log.i("MainLogs" , "onRestart");
+        Log.i("MainLogs", "onRestart");
         super.onRestart();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if (menuItem.getItemId() == R.id.dump_data) {
+            dbHelper.deleteAllData(db);
+            coins.clear();
+            adapter.notifyDataSetChanged();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(menuItem);
+        }
     }
 
 }

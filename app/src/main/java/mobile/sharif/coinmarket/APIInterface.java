@@ -2,6 +2,7 @@ package mobile.sharif.coinmarket;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,10 +30,10 @@ class APIInterface {
         coin_info_api_key = backup_api_key;
     }
 
-    private void extractCoinFromResponse(String response) {
+    private void extractCoinFromResponse(String response, ProgressBar progressBar) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 30; i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String name = obj.getString("name");
                 String short_name = obj.getString("symbol");
@@ -43,6 +44,8 @@ class APIInterface {
                 Double seven_day = changes.getDouble("percent_change_7d");
                 Coin coin = new Coin(name, short_name, price, one_hour, one_day, seven_day);
                 retrieveCoinPicFromApi(coin);
+                progressBar.setProgress((i + 1) * 10);
+                Thread.sleep(10);
             }
         } catch (Exception e) {
             Log.i("JSON", e.toString());
@@ -56,7 +59,7 @@ class APIInterface {
                 .build();
     }
 
-    void retrieveCoinFromApi() {
+    void retrieveCoinFromApi(ProgressBar progressBar) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
@@ -76,7 +79,7 @@ class APIInterface {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     String resp = response.body().string();
-                    extractCoinFromResponse(resp);
+                    extractCoinFromResponse(resp, progressBar);
                 }
             }
         });

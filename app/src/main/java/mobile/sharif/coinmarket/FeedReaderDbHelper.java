@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 
@@ -90,15 +91,24 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return new Coin(name, short_name, price, one_hour, one_day, seven_day, logo);
     }
 
-    ArrayList<Coin> getAllCoins(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
+    ArrayList<Coin> getAllCoins(SQLiteDatabase db, FeedReaderDbHelper dbHelper, ProgressBar progres) {
         Cursor cursor = db.query(FeedReaderDbHelper.TABLE_NAME,
                 null, null, null, null, null, null);
 
         ArrayList<Coin> coins = new ArrayList<>();
+        double length = cursor.getCount();
         while (cursor.moveToNext()) {
             Coin coin = dbHelper.getCoin(cursor);
             coins.add(coin);
+            progres.setProgress((int)Math.round((cursor.getPosition() / length) * 100));
+            try{
+                Thread.sleep(10);
+            } catch (Exception e){
+                Log.i("Error", e.getMessage());
+            }
+
         }
+        progres.setProgress(0);
         cursor.close();
         return coins;
     }
