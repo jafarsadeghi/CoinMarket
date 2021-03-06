@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         setContentView(R.layout.activity_main);
 
         //testing detailed activity
-        Intent detailIntent = new Intent(this, DetailPage.class);
-        startActivity(detailIntent);
+//        Intent detailIntent = new Intent(this, DetailPage.class);
+//        startActivity(detailIntent);
 
         // Button Configuration
         progressBar = findViewById(R.id.pBar);
@@ -101,7 +101,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Runnable newthread = () -> {
             Log.i("BIG", "start big compute");
             api.retrieveCoinFromApi(progressBar);
-            coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+            coins.clear();
+            coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
+            adapter.notifyItemRangeInserted(0, coins.size());
             progressBar.setProgress(0);
             Log.i("BIG", "end of big computation");
             threadcomplete = true;
@@ -143,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.dump_data) {
-            dbHelper.deleteAllData(db);
             coins.clear();
             adapter.notifyDataSetChanged();
+            dbHelper.deleteAllData(db);
             return true;
         } else {
             return super.onOptionsItemSelected(menuItem);
