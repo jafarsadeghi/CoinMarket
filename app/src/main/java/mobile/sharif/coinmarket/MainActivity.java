@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         progressBar = findViewById(R.id.pBar);
         button = findViewById(R.id.button);
         button.setOnClickListener(this);
+
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
         try {
             ProviderInstaller.installIfNeeded(getApplicationContext());

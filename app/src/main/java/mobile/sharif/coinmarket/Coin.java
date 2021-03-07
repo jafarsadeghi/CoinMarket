@@ -16,7 +16,6 @@ public class Coin implements Serializable {
     public Coin() {
     }
 
-
     public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, String logo) {
         this.name = name;
         this.short_name = short_name;
