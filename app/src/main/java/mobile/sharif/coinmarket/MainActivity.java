@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import javax.net.ssl.SSLEngine;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button load_btn;
+    private long mLastClickTime = 0;
     Handler handler = new Handler();
     ProgressBar progressBar;
     ArrayList<Coin> coins = new ArrayList<>();
@@ -92,6 +94,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public void onClick(View view) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 5000){
+            Toast.makeText(this, R.string.too_many_req, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         Runnable newthread = () -> {
             Log.i("BIG", "start big compute");
             api.retrieveCoinFromApi(progressBar);

@@ -3,8 +3,9 @@
     <string name="reload_button">Reload</string>
     <string name="test">Test</string>
     <string name="title_activity_detail_page">DetailPage</string>
-    <string name="not_internet">No Internet Connection. Please Reload</string>
+    <string name="not_internet">No Data. Please connect to internet!</string>
     <string name="reload">Reload</string>
     <string name="dump_data">Dump Data</string>
     <string name="load_data">Load</string>
+    <string name="too_many_req">Easy fella! Too many requests</string>
 </resources>
