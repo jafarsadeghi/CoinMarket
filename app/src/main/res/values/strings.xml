@@ -6,4 +6,5 @@
     <string name="not_internet">No Internet Connection. Please Reload</string>
     <string name="reload">Reload</string>
     <string name="dump_data">Dump Data</string>
+    <string name="load_data">Load</string>
 </resources>

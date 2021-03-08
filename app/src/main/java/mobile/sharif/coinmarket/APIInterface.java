@@ -19,34 +19,37 @@ import okhttp3.Response;
 
 class APIInterface {
 
-    private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
+    private final static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     private SQLiteDatabase db;
-    private FeedReaderDbHelper dbHelper;
+    private DbHelper dbHelper;
+    private int start = 1;
+    private int step = 10;
 
-    public APIInterface(SQLiteDatabase db, FeedReaderDbHelper dbHelper) {
+    public APIInterface(SQLiteDatabase db, DbHelper dbHelper) {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
-        coin_info_api_key = backup_api_key;
+//        coin_info_api_key = backup_api_key;
     }
 
     private void extractCoinFromResponse(String response, ProgressBar progressBar) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String name = obj.getString("name");
                 String short_name = obj.getString("symbol");
+                int rank = obj.getInt("cmc_rank");
                 JSONObject changes = obj.getJSONObject("quote").getJSONObject("USD");
                 Double price = changes.getDouble("price");
                 Double one_hour = changes.getDouble("percent_change_1h");
                 Double one_day = changes.getDouble("percent_change_24h");
                 Double seven_day = changes.getDouble("percent_change_7d");
-                Coin coin = new Coin(name, short_name, price, one_hour, one_day, seven_day);
+                Coin coin = new Coin(name, short_name, price, one_hour, one_day, seven_day, rank);
                 retrieveCoinPicFromApi(coin);
                 progressBar.setProgress((i + 1) * 10);
-                Thread.sleep(10);
             }
+            start += step;
         } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
@@ -63,8 +66,8 @@ class APIInterface {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
-        String url = HttpUrl.parse(uri).newBuilder().build().toString();
-
+        String url = HttpUrl.parse(uri).newBuilder().addQueryParameter("start", String.valueOf(start))
+                .addQueryParameter("limit", String.valueOf(step)).build().toString();
         Request request = getCustomRequest(url);
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -92,7 +95,8 @@ class APIInterface {
             coin.setLogo(logo);
             dbHelper.putCoin(db, coin);
         } catch (Exception e) {
-            Log.i("JSON", e.toString());
+            Log.i("JSOND", "");
+            e.printStackTrace();
         }
     }
 
@@ -122,6 +126,10 @@ class APIInterface {
                 }
             }
         });
+    }
+
+    public void resetStart() {
+        this.start = 1;
     }
 }
 

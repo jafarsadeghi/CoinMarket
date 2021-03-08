@@ -25,20 +25,18 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
-    Button button;
+    Button load_btn;
     Handler handler = new Handler();
     ProgressBar progressBar;
-    int prog = 0;
-    private int i = 0;
-    private Handler hdlr = new Handler();
     ArrayList<Coin> coins = new ArrayList<>();
+    APIInterface api;
 
     MyRecyclerViewAdapter adapter;
     RecyclerView recyclerView;
     public static final int REQ_CODE = 11;
     public static final int REQ_RESUME = 11;
 
-    FeedReaderDbHelper dbHelper;
+    DbHelper dbHelper;
     SQLiteDatabase db;
     boolean threadcomplete = false;
 
@@ -48,14 +46,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //testing detailed activity
-//        Intent detailIntent = new Intent(this, DetailPage.class);
-//        startActivity(detailIntent);
-
         // Button Configuration
         progressBar = findViewById(R.id.pBar);
-        button = findViewById(R.id.button);
-        button.setOnClickListener(this);
+        load_btn = findViewById(R.id.load_btn);
+        load_btn.setOnClickListener(this);
 
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
         try {
@@ -66,18 +60,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         } catch (Exception e) {
             Log.i("Error", e.toString());
         }
-
         // ------------------- DB -----------------------
-        dbHelper = new FeedReaderDbHelper(this);
+        dbHelper = new DbHelper(this);
         // Gets the data repository in write mode
         db = dbHelper.getWritableDatabase();
-
+        api = new APIInterface(db, dbHelper);
+//        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
         Runnable runnable = () -> coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
 
         runnable.run();
         if (coins.isEmpty()) {
             new AlertDialog.Builder(this).setMessage(R.string.not_internet)
-                    .setPositiveButton(R.string.reload, (dialog, id) -> button.callOnClick()).show();
+                    .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
         }
         Log.i("COINS", coins.toString());
         // ------------------- RECYCLER VIEW -----------------------
@@ -98,11 +92,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public void onClick(View view) {
-        APIInterface api = new APIInterface(db, dbHelper);
         Runnable newthread = () -> {
             Log.i("BIG", "start big compute");
             api.retrieveCoinFromApi(progressBar);
             coins.clear();
+            adapter.notifyDataSetChanged();
             coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
             adapter.notifyItemRangeInserted(0, coins.size());
             progressBar.setProgress(0);
@@ -146,9 +140,17 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.dump_data) {
+            api.resetStart();
             coins.clear();
             adapter.notifyDataSetChanged();
             dbHelper.deleteAllData(db);
+            return true;
+        } else if (menuItem.getItemId() == R.id.reload_btn) {
+            coins.clear();
+            adapter.notifyDataSetChanged();
+            coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
+            adapter.notifyItemRangeInserted(0, coins.size());
+            progressBar.setProgress(0);
             return true;
         } else {
             return super.onOptionsItemSelected(menuItem);

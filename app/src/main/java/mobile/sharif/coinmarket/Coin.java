@@ -12,11 +12,12 @@ public class Coin implements Serializable {
     private Double one_day_change;
     private Double seven_day_change;
     private String logo;
+    private int rank;
 
     public Coin() {
     }
 
-    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, String logo) {
+    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, String logo, int rank) {
         this.name = name;
         this.short_name = short_name;
         this.price = price;
@@ -24,15 +25,17 @@ public class Coin implements Serializable {
         this.one_day_change = one_day_change;
         this.seven_day_change = seven_day_change;
         this.logo = logo;
+        this.rank = rank;
     }
 
-    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change) {
+    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, int rank) {
         this.name = name;
         this.short_name = short_name;
         this.price = price;
         this.one_hour_change = one_hour_change;
         this.one_day_change = one_day_change;
         this.seven_day_change = seven_day_change;
+        this.rank = rank;
     }
 
     public long getRow_id() {
@@ -93,5 +96,9 @@ public class Coin implements Serializable {
 
     public void setLogo(String logo) {
         this.logo = logo;
+    }
+
+    public int getRank(){
+        return rank;
     }
 }
