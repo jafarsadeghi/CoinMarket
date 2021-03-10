@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("MainLogs", "onCreate");
+        APIforGettingCandles k = new APIforGettingCandles();
+        Log.i("MainLogs" , k.getCurrentDate());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

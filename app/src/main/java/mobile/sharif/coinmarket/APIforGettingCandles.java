@@ -1,8 +1,10 @@
 package mobile.sharif.coinmarket;
 
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -11,7 +13,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SimpleRequest {
+public class APIforGettingCandles {
 
     public enum Range {
         weekly,
@@ -24,7 +26,7 @@ public class SimpleRequest {
 
     public void getCandles(String symbol, Range range) {
         //ToDo I dont know what is it!
-        String YOUR_COIN_IO_API_KEY = "salam";
+        String YOUR_COIN_IO_API_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
 
         OkHttpClient okHttpClient = new OkHttpClient();
 
@@ -77,8 +79,11 @@ public class SimpleRequest {
 
     }
 
-    private String getCurrentDate() {
+    public String getCurrentDate() {
         //ToDo make here
-        return "do here";
+        Date d = new Date();
+        CharSequence s  = DateFormat.format("yyyy-MM-dd", d.getTime());
+        String myDate = s.toString();
+        return myDate;
     }
 }
