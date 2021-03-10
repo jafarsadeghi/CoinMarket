@@ -46,7 +46,7 @@ public class Coin implements Serializable {
         this.row_id = row_id;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 

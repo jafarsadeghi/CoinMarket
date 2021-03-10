@@ -4,8 +4,6 @@ import com.github.mikephil.charting.data.CandleEntry;
 
 import java.util.ArrayList;
 
-import mobile.sharif.coinmarket.StringCandle;
-
 public class CandleDataStructer {
     public enum Range{
         WEEKLY , MONTHLY

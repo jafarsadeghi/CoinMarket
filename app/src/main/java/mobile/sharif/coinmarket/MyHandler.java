@@ -1,4 +1,4 @@
-package mobile.sharif.coinmarket.Thread;
+package mobile.sharif.coinmarket;
 
 import android.os.Handler;
 import android.os.Message;

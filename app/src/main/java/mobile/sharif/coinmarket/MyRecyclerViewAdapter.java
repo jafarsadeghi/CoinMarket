@@ -20,7 +20,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private Context context;
 
     // data is passed into the constructor
-    MyRecyclerViewAdapter(Context context, List<Coin> data) {
+    public MyRecyclerViewAdapter(Context context, List<Coin> data) {
         this.mInflater = LayoutInflater.from(context);
         this.context = context;
         this.mData = data;
@@ -94,12 +94,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     // convenience method for getting data at click position
-    Coin getItem(int id) {
+    public Coin getItem(int id) {
         return mData.get(id);
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 

@@ -25,8 +25,6 @@ import com.google.android.gms.security.ProviderInstaller;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import mobile.sharif.coinmarket.Thread.LooperThread;
-
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button load_btn;

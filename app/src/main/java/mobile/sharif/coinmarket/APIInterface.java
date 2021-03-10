@@ -17,7 +17,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-class APIInterface {
+public class APIInterface {
 
     private final static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     private SQLiteDatabase db;
@@ -62,7 +62,7 @@ class APIInterface {
                 .build();
     }
 
-    void retrieveCoinFromApi(ProgressBar progressBar) {
+    public void retrieveCoinFromApi(ProgressBar progressBar) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
