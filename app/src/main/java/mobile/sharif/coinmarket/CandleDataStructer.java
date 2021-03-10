@@ -32,4 +32,9 @@ public class CandleDataStructer {
             addCandle(candle);
         }
     }
+    public static void setDataForTest(){
+        for(int i = 0 ; i< 30; i++){
+            candleEntries.add(new CandleEntry(i , i+55 , i+52 , i+53 , i+54));
+        }
+    }
 }

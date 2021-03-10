@@ -37,7 +37,9 @@ public class DetailPage extends AppCompatActivity {
         if (extras != null)
             if (extras.containsKey("coin"))
                 coin = (Coin) getIntent().getSerializableExtra("coin");
-*/      yValsCandleStick = new ArrayList<>();
+*/
+        CandleDataStructer.setDataForTest();
+        yValsCandleStick = new ArrayList<>();
         yValsCandleStick.addAll(CandleDataStructer.candleEntries);
         range = findViewById(R.id.range);
         range.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
