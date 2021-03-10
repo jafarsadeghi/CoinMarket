@@ -21,9 +21,9 @@ class APIInterface {
 
     private final static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     private SQLiteDatabase db;
-    private DbHelper dbHelper;
+    public DbHelper dbHelper;
     private int start = 1;
-    private int step = 10;
+    private final int step = 10;
 
     public APIInterface(SQLiteDatabase db, DbHelper dbHelper) {
         this.db = db;

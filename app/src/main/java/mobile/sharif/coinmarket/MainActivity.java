@@ -27,6 +27,7 @@ import javax.net.ssl.SSLEngine;
 
 import mobile.sharif.coinmarket.Thread.LooperThread;
 
+
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button load_btn;
     private long mLastClickTime = 0;

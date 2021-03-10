@@ -41,7 +41,7 @@ public class DbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
 
 
-    DbHelper(Context context) {
+    public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -62,7 +62,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + TABLE_NAME);
     }
 
-    void putCoin(SQLiteDatabase db, Coin coin) {
+    public void putCoin(SQLiteDatabase db, Coin coin) {
         if (hasCoin(db, coin)) {
             return;
         }
@@ -83,7 +83,7 @@ public class DbHelper extends SQLiteOpenHelper {
         coin.setRow_id(row_id);
     }
 
-    private Coin getCoin(Cursor cursor) {
+    public Coin getCoin(Cursor cursor) {
         String name = cursor.getString(cursor.getColumnIndexOrThrow(DbHelper.COLUMN_NAME));
         String short_name = cursor.getString(cursor.getColumnIndexOrThrow(DbHelper.COLUMN_SHORT_NAME));
         Double price = cursor.getDouble(cursor.getColumnIndexOrThrow(DbHelper.COLUMN_PRICE));
@@ -95,7 +95,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return new Coin(name, short_name, price, one_hour, one_day, seven_day, logo, rank);
     }
 
-    ArrayList<Coin> getAllCoins(SQLiteDatabase db, DbHelper dbHelper, ProgressBar progres) {
+    public ArrayList<Coin> getAllCoins(SQLiteDatabase db, DbHelper dbHelper, ProgressBar progres) {
         String sortOrder = COLUMN_RANK + " ASC";
         Cursor cursor = db.query(DbHelper.TABLE_NAME,
                 null, null, null, null, null, sortOrder);
@@ -118,7 +118,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return coins;
     }
 
-    private boolean hasCoin(SQLiteDatabase db, Coin coin) {
+    public boolean hasCoin(SQLiteDatabase db, Coin coin) {
         String selection = COLUMN_NAME + " = ?";
         String[] selectionArgs = {coin.getName()};
 

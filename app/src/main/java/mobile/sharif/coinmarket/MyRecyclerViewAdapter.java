@@ -16,7 +16,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     private List<Coin> mData;
     private LayoutInflater mInflater;
-    private ItemClickListener mClickListener;
+    public ItemClickListener mClickListener;
     private Context context;
 
     // data is passed into the constructor
