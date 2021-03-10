@@ -25,7 +25,6 @@ public class APIforGettingCandles {
 // پارامتر اول هم نماد سکه مورد نظر خواهد بود
 
     public void getCandles(String symbol, Range range) {
-        //ToDo I dont know what is it!
         String YOUR_COIN_IO_API_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
 
         OkHttpClient okHttpClient = new OkHttpClient();
@@ -73,6 +72,7 @@ public class APIforGettingCandles {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     //extractCandlesFromResponse(response.body().string(), description);
+                    //TODO get me an ArrayList Of 30 StringCandles
                 }
             }
         });
@@ -80,7 +80,6 @@ public class APIforGettingCandles {
     }
 
     public String getCurrentDate() {
-        //ToDo make here
         Date d = new Date();
         CharSequence s  = DateFormat.format("yyyy-MM-dd", d.getTime());
         String myDate = s.toString();
