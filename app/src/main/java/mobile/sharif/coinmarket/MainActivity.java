@@ -25,6 +25,8 @@ import com.google.android.gms.security.ProviderInstaller;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
+import mobile.sharif.coinmarket.Thread.LooperThread;
+
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button load_btn;
     private long mLastClickTime = 0;
@@ -42,11 +44,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     SQLiteDatabase db;
     boolean threadcomplete = false;
 
+    private LooperThread looperThread = new LooperThread();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("MainLogs", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // start looper
+        looperThread.start();
 
         // Button Configuration
         progressBar = findViewById(R.id.pBar);
@@ -68,20 +75,32 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         db = dbHelper.getWritableDatabase();
         api = new APIInterface(db, dbHelper);
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
-        Runnable runnable = () -> coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
 
-        runnable.run();
-        if (coins.isEmpty()) {
-            new AlertDialog.Builder(this).setMessage(R.string.not_internet)
-                    .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
-        }
-        Log.i("COINS", coins.toString());
-        // ------------------- RECYCLER VIEW -----------------------
-        recyclerView = findViewById(R.id.coinlist);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MyRecyclerViewAdapter(this, coins);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
+        // start fetching on another thread
+        looperThread.myHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+                if (coins.isEmpty()) {
+                    new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
+                            .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
+                }
+                Log.i("COINS", coins.toString());
+                // ------------------- RECYCLER VIEW -----------------------
+                recyclerView = findViewById(R.id.coinlist);
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                adapter = new MyRecyclerViewAdapter(MainActivity.this, coins);
+                adapter.setClickListener(MainActivity.this);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i("MainLogs", "onStart");
     }
 
     @Override
@@ -94,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     public void onClick(View view) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 5000){
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 5000) {
             Toast.makeText(this, R.string.too_many_req, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -118,12 +137,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             }
         }
 
-    }
-
-    @Override
-    protected void onStart() {
-        Log.i("MainLogs", "onStart");
-        super.onStart();
     }
 
     @Override
@@ -163,5 +176,4 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             return super.onOptionsItemSelected(menuItem);
         }
     }
-
 }
