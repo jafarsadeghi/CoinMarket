@@ -48,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //for test comment two lines
+        Intent detailIntent = new Intent(this, DetailPage.class);
+        startActivityForResult(detailIntent, REQ_CODE);
+
         Log.i("MainLogs", "onCreate");
         APIforGettingCandles k = new APIforGettingCandles();
         Log.i("MainLogs" , k.getCurrentDate());

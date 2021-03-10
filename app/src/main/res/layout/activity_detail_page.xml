@@ -3,12 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailPage">
+    android:orientation="vertical"
+    tools:context=".DetailPage"
+    tools:ignore="UseSwitchCompatOrMaterialXml">
+
+    <Switch
+        android:id="@+id/range"
+        android:layout_width="321dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:text="@string/range" />
+
     <com.github.mikephil.charting.charts.CandleStickChart
         android:id="@+id/candle_stick_chart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginRight="4dp"
+        android:layout_height="592dp"
         android:layout_marginEnd="4dp"
-        />
+        android:layout_marginRight="4dp"
+        android:layout_weight="8" />
 </LinearLayout>

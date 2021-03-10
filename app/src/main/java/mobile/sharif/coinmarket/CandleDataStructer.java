@@ -11,7 +11,7 @@ public class CandleDataStructer {
         WEEKLY , MONTHLY
     }
 
-    private static ArrayList<CandleEntry> candleEntries;
+    public static ArrayList<CandleEntry> candleEntries = new ArrayList<>();
     public static Range rangeOfcandlesToDo;
     public static void addCandle(StringCandle candle) {
         candleEntries.add(makeCandleEntry(candle.high, candle.low, candle.open, candle.close));

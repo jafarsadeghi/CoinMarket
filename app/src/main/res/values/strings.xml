@@ -8,4 +8,5 @@
     <string name="dump_data">Dump Data</string>
     <string name="load_data">Load</string>
     <string name="too_many_req">Easy fella! Too many requests</string>
+    <string name="range">weekly/monthly</string>
 </resources>

@@ -1,12 +1,18 @@
 package mobile.sharif.coinmarket;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.github.mikephil.charting.charts.CandleStickChart;
 import com.github.mikephil.charting.components.Legend;
@@ -20,7 +26,8 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class DetailPage extends AppCompatActivity {
-
+    Switch range ;
+    ArrayList<CandleEntry> yValsCandleStick;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,8 +37,22 @@ public class DetailPage extends AppCompatActivity {
         if (extras != null)
             if (extras.containsKey("coin"))
                 coin = (Coin) getIntent().getSerializableExtra("coin");
-*/
-
+*/      yValsCandleStick = new ArrayList<>();
+        yValsCandleStick.addAll(CandleDataStructer.candleEntries);
+        range = findViewById(R.id.range);
+        range.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(!range.isChecked()){
+                    for(int i = 0; i<7; i++){
+                        yValsCandleStick = new ArrayList<>();
+                        yValsCandleStick.add(CandleDataStructer.candleEntries.get(i));
+                    }
+                }else{
+                    yValsCandleStick = new ArrayList<>();
+                    yValsCandleStick.addAll(CandleDataStructer.candleEntries);
+                }
+            }
+        });
         CandleStickChart candleStickChart = findViewById(R.id.candle_stick_chart);
         candleStickChart.setHighlightPerDragEnabled(true);
 
@@ -58,13 +79,6 @@ public class DetailPage extends AppCompatActivity {
         Legend l = candleStickChart.getLegend();
         l.setEnabled(true);
 
-        ArrayList<CandleEntry> yValsCandleStick= new ArrayList<>();
-        yValsCandleStick.add(new CandleEntry(0, 225.0f, 219.84f, 224.94f, 221.07f));
-        yValsCandleStick.add(new CandleEntry(1, 228.35f, 222.57f, 223.52f, 226.41f));
-        yValsCandleStick.add(new CandleEntry(2, 226.84f,  222.52f, 225.75f, 223.84f));
-        yValsCandleStick.add(new CandleEntry(3, 222.95f, 217.27f, 222.15f, 217.88f));
-        yValsCandleStick.add(new CandleEntry(4 , 225f , 220f , 221f , 225f));
-
         CandleDataSet set1 = new CandleDataSet(yValsCandleStick, "DataSet 1");
         set1.setColor(Color.rgb(80, 80, 80));
         set1.setShadowColor(getResources().getColor(R.color.colorLightGrayMore));
@@ -86,4 +100,5 @@ public class DetailPage extends AppCompatActivity {
         candleStickChart.setData(data);
         candleStickChart.invalidate();
     }
+
 }
