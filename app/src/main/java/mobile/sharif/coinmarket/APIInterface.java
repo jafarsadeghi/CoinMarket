@@ -1,13 +1,18 @@
 package mobile.sharif.coinmarket;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ProgressBar;
+
+import com.github.mikephil.charting.data.CandleEntry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 
 import okhttp3.Call;
@@ -24,12 +29,16 @@ public class APIInterface {
     public DbHelper dbHelper;
     private int start = 1;
     private final int step = 10;
+    public ArrayList<CandleEntry> candleEntries = new ArrayList<>();
 
     public APIInterface(SQLiteDatabase db, DbHelper dbHelper) {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
 //        coin_info_api_key = backup_api_key;
+    }
+
+    public APIInterface() {
     }
 
     private void extractCoinFromResponse(String response, ProgressBar progressBar) {
@@ -131,6 +140,83 @@ public class APIInterface {
     public void resetStart() {
         this.start = 1;
     }
+
+    public enum Range {
+        weekly,
+        oneMonth,
+    }
+
+    public void getCandles(String symbol, Range range) {
+        String YOUR_COIN_IO_API_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        String miniUrl;
+        switch (range) {
+            case weekly:
+                miniUrl = "period_id=1DAY".concat("&time_end=".concat(getCurrentDate()).concat("&limit=7"));
+                break;
+            case oneMonth:
+                miniUrl = "period_id=1DAY".concat("&time_end=".concat(getCurrentDate()).concat("&limit=30"));
+                break;
+            default:
+                miniUrl = "";
+        }
+
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/USD/history?".concat(miniUrl)))
+                .newBuilder();
+
+        String url = urlBuilder.build().toString();
+
+        final Request request = new Request.Builder().url(url)
+                .addHeader("X-CoinAPI-Key", YOUR_COIN_IO_API_KEY)
+                .build();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.v("TAG", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    extractCandlesFromResponse(response.body().string());
+                }
+            }
+        });
+
+    }
+
+    private void extractCandlesFromResponse(String responseString) {
+        try {
+            JSONArray arr = new JSONArray(responseString);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                float open = (float)obj.getDouble("price_open");
+                float close = (float)obj.getDouble("price_close");
+                float high = (float)obj.getDouble("price_high");
+                float low = (float)obj.getDouble("price_low");
+                CandleEntry entry = new CandleEntry(i , high , low , open , close);
+                candleEntries.add(entry);
+            }
+        } catch (Exception e) {
+            Log.i("JSON", e.toString());
+        }
+    }
+
+    public String getCurrentDate() {
+        Date d = new Date();
+        CharSequence s  = DateFormat.format("yyyy-MM-dd", d.getTime());
+        String myDate = s.toString();
+        return myDate;
+    }
+
+
 }
 
 

@@ -27,35 +27,39 @@ import java.util.ArrayList;
 
 
 public class DetailPage extends AppCompatActivity {
-    Switch range ;
+    Switch range;
     ArrayList<CandleEntry> yValsCandleStick;
     CandleStickChart candleStickChart;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_page);
-        /*Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
         Coin coin = new Coin();
         if (extras != null)
             if (extras.containsKey("coin"))
                 coin = (Coin) getIntent().getSerializableExtra("coin");
-*/
-        CandleDataStructer.setDataForTest();
+
+        APIInterface api = new APIInterface();
+        api.getCandles(coin.getShort_name(), APIInterface.Range.oneMonth);
         yValsCandleStick = new ArrayList<>();
-        yValsCandleStick.addAll(CandleDataStructer.candleEntries);
+        yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
         range.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Toast.makeText(DetailPage.this, "Changed", Toast.LENGTH_SHORT).show();
-                if(!range.isChecked()){
-                    ArrayList<CandleEntry> temp= new ArrayList<>();
-                    for(int i = 0; i<7; i++){
-                        temp.add(CandleDataStructer.candleEntries.get(i));
+                if (!range.isChecked()) {
+                    ArrayList<CandleEntry> temp = new ArrayList<>();
+                    for (int i = 0; i < 7; i++) {
+                        Log.i("Candels2",api.candleEntries.toString());
+                        temp.add(api.candleEntries.get(i));
                     }
                     yValsCandleStick = temp;
-                }else{
+                } else {
+                    Log.i("Candels1",api.candleEntries.toString());
                     yValsCandleStick = new ArrayList<>();
-                    yValsCandleStick.addAll(CandleDataStructer.candleEntries);
+                    yValsCandleStick.addAll(api.candleEntries);
                 }
                 candleStickChart = findViewById(R.id.candle_stick_chart);
                 candleStickChart.setHighlightPerDragEnabled(true);
@@ -91,7 +95,6 @@ public class DetailPage extends AppCompatActivity {
                 set1.setIncreasingPaintStyle(Paint.Style.FILL);
                 set1.setNeutralColor(Color.LTGRAY);
                 set1.setDrawValues(true);
-
 
 
                 // create a data object with the datasets

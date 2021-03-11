@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     MyRecyclerViewAdapter adapter;
     RecyclerView recyclerView;
     public static final int REQ_CODE = 11;
-    public static final int REQ_RESUME = 11;
 
     DbHelper dbHelper;
     SQLiteDatabase db;
@@ -47,13 +46,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //for test comment two lines
-       /* Intent detailIntent = new Intent(this, DetailPage.class);
-        startActivityForResult(detailIntent, REQ_CODE);
-*/
         Log.i("MainLogs", "onCreate");
-        APIforGettingCandles k = new APIforGettingCandles();
-        Log.i("MainLogs" , k.getCurrentDate());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
