@@ -47,14 +47,14 @@ public class APIInterface {
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String name = obj.getString("name");
-                String short_name = obj.getString("symbol");
+                String symbol = obj.getString("symbol");
                 int rank = obj.getInt("cmc_rank");
                 JSONObject changes = obj.getJSONObject("quote").getJSONObject("USD");
                 Double price = changes.getDouble("price");
                 Double one_hour = changes.getDouble("percent_change_1h");
                 Double one_day = changes.getDouble("percent_change_24h");
                 Double seven_day = changes.getDouble("percent_change_7d");
-                Coin coin = new Coin(name, short_name, price, one_hour, one_day, seven_day, rank);
+                Coin coin = new Coin(name, symbol, price, one_hour, one_day, seven_day, rank);
                 retrieveCoinPicFromApi(coin);
                 progressBar.setProgress((i + 1) * 10);
             }
@@ -100,11 +100,11 @@ public class APIInterface {
     private void extractCoinInfoFromResponse(String response, Coin coin) {
         try {
             String logo = new JSONObject(response).getJSONObject("data")
-                    .getJSONObject(coin.getShort_name()).getString("logo");
+                    .getJSONObject(coin.getSymbol()).getString("logo");
             coin.setLogo(logo);
             dbHelper.putCoin(db, coin);
         } catch (Exception e) {
-            Log.i("JSOND", "");
+            Log.i("JSON", "");
             e.printStackTrace();
         }
     }
@@ -115,7 +115,7 @@ public class APIInterface {
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info";
         String url = HttpUrl.parse(uri).newBuilder()
-                .addQueryParameter("symbol", coin.getShort_name()).build().toString();
+                .addQueryParameter("symbol", coin.getSymbol()).build().toString();
 
         Request request = getCustomRequest(url);
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -147,7 +147,7 @@ public class APIInterface {
     }
 
     public void getCandles(String symbol, Range range) {
-        String YOUR_COIN_IO_API_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
+        String CANDLE_ALI_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
 
         OkHttpClient okHttpClient = new OkHttpClient();
 
@@ -170,7 +170,7 @@ public class APIInterface {
         String url = urlBuilder.build().toString();
 
         final Request request = new Request.Builder().url(url)
-                .addHeader("X-CoinAPI-Key", YOUR_COIN_IO_API_KEY)
+                .addHeader("X-CoinAPI-Key", CANDLE_ALI_KEY)
                 .build();
 
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -212,8 +212,7 @@ public class APIInterface {
     public String getCurrentDate() {
         Date d = new Date();
         CharSequence s  = DateFormat.format("yyyy-MM-dd", d.getTime());
-        String myDate = s.toString();
-        return myDate;
+        return s.toString();
     }
 
 

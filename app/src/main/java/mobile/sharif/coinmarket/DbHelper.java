@@ -69,7 +69,7 @@ public class DbHelper extends SQLiteOpenHelper {
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(DbHelper.COLUMN_NAME, coin.getName());
-        values.put(DbHelper.COLUMN_SHORT_NAME, coin.getShort_name());
+        values.put(DbHelper.COLUMN_SHORT_NAME, coin.getSymbol());
         values.put(DbHelper.COLUMN_PRICE, coin.getPrice());
         values.put(DbHelper.COLUMN_ONE_HOUR, coin.getOne_hour_change());
         values.put(DbHelper.COLUMN_ONE_DAY, coin.getOne_day_change());

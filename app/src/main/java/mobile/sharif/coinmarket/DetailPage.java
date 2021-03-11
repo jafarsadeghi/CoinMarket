@@ -1,19 +1,13 @@
 package mobile.sharif.coinmarket;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.util.AtomicFile;
-import android.util.Log;
-import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.github.mikephil.charting.charts.CandleStickChart;
 import com.github.mikephil.charting.components.Legend;
@@ -42,22 +36,21 @@ public class DetailPage extends AppCompatActivity {
                 coin = (Coin) getIntent().getSerializableExtra("coin");
 
         APIInterface api = new APIInterface();
-        api.getCandles(coin.getShort_name(), APIInterface.Range.oneMonth);
+        api.getCandles(coin.getSymbol(), APIInterface.Range.oneMonth);
         yValsCandleStick = new ArrayList<>();
         yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
+        Coin finalCoin = coin;
         range.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Toast.makeText(DetailPage.this, "Changed", Toast.LENGTH_SHORT).show();
                 if (!range.isChecked()) {
                     ArrayList<CandleEntry> temp = new ArrayList<>();
                     for (int i = 0; i < 7; i++) {
-                        Log.i("Candels2",api.candleEntries.toString());
                         temp.add(api.candleEntries.get(i));
                     }
                     yValsCandleStick = temp;
                 } else {
-                    Log.i("Candels1",api.candleEntries.toString());
                     yValsCandleStick = new ArrayList<>();
                     yValsCandleStick.addAll(api.candleEntries);
                 }
@@ -65,36 +58,15 @@ public class DetailPage extends AppCompatActivity {
                 candleStickChart.setHighlightPerDragEnabled(true);
                 candleStickChart.setDrawBorders(true);
                 candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
-
-                YAxis yAxis = candleStickChart.getAxisLeft();
-                YAxis rightAxis = candleStickChart.getAxisRight();
-                yAxis.setDrawGridLines(false);
-                rightAxis.setDrawGridLines(false);
                 candleStickChart.requestDisallowInterceptTouchEvent(true);
 
-                XAxis xAxis = candleStickChart.getXAxis();
 
-                xAxis.setDrawGridLines(false);// disable x axis grid lines
-                xAxis.setDrawLabels(true);
-                rightAxis.setTextColor(Color.BLACK);
-                yAxis.setDrawLabels(true);
-                xAxis.setGranularity(1f);
-                xAxis.setGranularityEnabled(true);
-                xAxis.setAvoidFirstLastClipping(true);
+                setAxisOptions();
 
                 Legend l = candleStickChart.getLegend();
                 l.setEnabled(true);
 
-                CandleDataSet set1 = new CandleDataSet(yValsCandleStick, "DataSet 1");
-                set1.setColor(Color.rgb(80, 80, 80));
-                set1.setShadowColor(getResources().getColor(R.color.colorLightGrayMore));
-                set1.setShadowWidth(0.8f);
-                set1.setDecreasingColor(getResources().getColor(R.color.colorRed));
-                set1.setDecreasingPaintStyle(Paint.Style.FILL);
-                set1.setIncreasingColor(getResources().getColor(R.color.colorAccent));
-                set1.setIncreasingPaintStyle(Paint.Style.FILL);
-                set1.setNeutralColor(Color.LTGRAY);
-                set1.setDrawValues(true);
+                CandleDataSet set1 = SetCandleDataSet(finalCoin);
 
 
                 // create a data object with the datasets
@@ -107,6 +79,37 @@ public class DetailPage extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setAxisOptions() {
+        YAxis yAxis = candleStickChart.getAxisLeft();
+        yAxis.setDrawGridLines(false);
+        yAxis.setDrawLabels(true);
+
+        YAxis rightAxis = candleStickChart.getAxisRight();
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setTextColor(Color.BLACK);
+
+        XAxis xAxis = candleStickChart.getXAxis();
+        xAxis.setDrawGridLines(false);// disable x axis grid lines
+        xAxis.setDrawLabels(true);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+        xAxis.setAvoidFirstLastClipping(true);
+    }
+
+    private CandleDataSet SetCandleDataSet(Coin coin) {
+        CandleDataSet set = new CandleDataSet(yValsCandleStick, coin.getDisplay_name());
+        set.setColor(Color.rgb(80, 80, 80));
+        set.setShadowColor(getResources().getColor(R.color.colorLightGrayMore));
+        set.setShadowWidth(0.8f);
+        set.setDecreasingColor(getResources().getColor(R.color.colorRed));
+        set.setDecreasingPaintStyle(Paint.Style.FILL);
+        set.setIncreasingColor(getResources().getColor(R.color.colorAccent));
+        set.setIncreasingPaintStyle(Paint.Style.FILL);
+        set.setNeutralColor(Color.LTGRAY);
+        set.setDrawValues(true);
+        return set;
     }
 
 }

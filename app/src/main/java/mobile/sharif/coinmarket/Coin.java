@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 public class Coin implements Serializable {
     private long row_id;
     private String name;
-    private String short_name;
+    private String symbol;
     private Double price;
     private Double one_hour_change;
     private Double one_day_change;
@@ -17,9 +17,9 @@ public class Coin implements Serializable {
     public Coin() {
     }
 
-    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, String logo, int rank) {
+    public Coin(String name, String symbol, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, String logo, int rank) {
         this.name = name;
-        this.short_name = short_name;
+        this.symbol = symbol;
         this.price = price;
         this.one_hour_change = one_hour_change;
         this.one_day_change = one_day_change;
@@ -28,18 +28,14 @@ public class Coin implements Serializable {
         this.rank = rank;
     }
 
-    public Coin(String name, String short_name, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, int rank) {
+    public Coin(String name, String symbol, Double price, Double one_hour_change, Double one_day_change, Double seven_day_change, int rank) {
         this.name = name;
-        this.short_name = short_name;
+        this.symbol = symbol;
         this.price = price;
         this.one_hour_change = one_hour_change;
         this.one_day_change = one_day_change;
         this.seven_day_change = seven_day_change;
         this.rank = rank;
-    }
-
-    public long getRow_id() {
-        return row_id;
     }
 
     public void setRow_id(long row_id) {
@@ -50,8 +46,8 @@ public class Coin implements Serializable {
         return name;
     }
 
-    String getShort_name() {
-        return short_name;
+    String getSymbol() {
+        return symbol;
     }
 
     String getPrice() {
@@ -87,7 +83,7 @@ public class Coin implements Serializable {
     }
 
     String getDisplay_name() {
-        return short_name.toUpperCase() + " | " + name;
+        return symbol.toUpperCase() + " | " + name;
     }
 
     public String getLogo() {

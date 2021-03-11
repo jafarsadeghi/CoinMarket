@@ -8,7 +8,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
@@ -29,7 +28,6 @@ import javax.net.ssl.SSLEngine;
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
     Button load_btn;
     private long mLastClickTime = 0;
-    Handler handler = new Handler();
     ProgressBar progressBar;
     ArrayList<Coin> coins = new ArrayList<>();
     APIInterface api;
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         // start looper
         looperThread.start();
 
-        // Button Configuration
+        // Button and progressbar Configuration
         progressBar = findViewById(R.id.pBar);
         load_btn = findViewById(R.id.load_btn);
         load_btn.setOnClickListener(this);
@@ -106,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         Intent detailIntent = new Intent(this, DetailPage.class);
         detailIntent.putExtra("coin", adapter.getItem(position));
         startActivityForResult(detailIntent, REQ_CODE);
-        Toast.makeText(this, "You clicked " + adapter.getItem(position).getName() + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
     @Override
