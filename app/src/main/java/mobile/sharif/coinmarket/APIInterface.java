@@ -24,7 +24,7 @@ import okhttp3.Response;
 
 public class APIInterface {
 
-    private final static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
+    private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     private SQLiteDatabase db;
     public DbHelper dbHelper;
     private int start = 1;
@@ -35,7 +35,7 @@ public class APIInterface {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
-//        coin_info_api_key = backup_api_key;
+        coin_info_api_key = backup_api_key;
     }
 
     public APIInterface() {
