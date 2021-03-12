@@ -2,6 +2,8 @@ package mobile.sharif.coinmarket;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 
 
 public class DetailPage extends AppCompatActivity {
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch range;
     ArrayList<CandleEntry> yValsCandleStick;
     CandleStickChart candleStickChart;
@@ -41,42 +44,40 @@ public class DetailPage extends AppCompatActivity {
         yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
         Coin finalCoin = coin;
-        range.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Toast.makeText(DetailPage.this, "Changed", Toast.LENGTH_SHORT).show();
-                if (!range.isChecked()) {
-                    ArrayList<CandleEntry> temp = new ArrayList<>();
-                    for (int i = 0; i < 7; i++) {
-                        temp.add(api.candleEntries.get(i));
-                    }
-                    yValsCandleStick = temp;
-                } else {
-                    yValsCandleStick = new ArrayList<>();
-                    yValsCandleStick.addAll(api.candleEntries);
+        range.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Toast.makeText(DetailPage.this, "Changed", Toast.LENGTH_SHORT).show();
+            if (!range.isChecked()) {
+                ArrayList<CandleEntry> temp = new ArrayList<>();
+                for (int i = 0; i < 7; i++) {
+                    temp.add(api.candleEntries.get(i));
                 }
-                candleStickChart = findViewById(R.id.candle_stick_chart);
-                candleStickChart.setHighlightPerDragEnabled(true);
-                candleStickChart.setDrawBorders(true);
-                candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
-                candleStickChart.requestDisallowInterceptTouchEvent(true);
-
-
-                setAxisOptions();
-
-                Legend l = candleStickChart.getLegend();
-                l.setEnabled(true);
-
-                CandleDataSet set1 = SetCandleDataSet(finalCoin);
-
-
-                // create a data object with the datasets
-                CandleData data = new CandleData(set1);
-
-
-                // set data
-                candleStickChart.setData(data);
-                candleStickChart.invalidate();
+                yValsCandleStick = temp;
+            } else {
+                yValsCandleStick = new ArrayList<>();
+                yValsCandleStick.addAll(api.candleEntries);
             }
+            candleStickChart = findViewById(R.id.candle_stick_chart);
+            candleStickChart.setHighlightPerDragEnabled(true);
+            candleStickChart.setDrawBorders(true);
+            candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
+            candleStickChart.requestDisallowInterceptTouchEvent(true);
+
+
+            setAxisOptions();
+
+            Legend l = candleStickChart.getLegend();
+            l.setEnabled(true);
+
+            CandleDataSet set1 = SetCandleDataSet(finalCoin);
+
+
+            // create a data object with the datasets
+            CandleData data = new CandleData(set1);
+
+
+            // set data
+            candleStickChart.setData(data);
+            candleStickChart.invalidate();
         });
 
     }
