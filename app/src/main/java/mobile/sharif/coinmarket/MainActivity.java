@@ -8,6 +8,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +19,11 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.google.android.gms.security.ProviderInstaller;
 
@@ -26,21 +32,42 @@ import javax.net.ssl.SSLEngine;
 
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
+    public static final int INITIALIZE_VIEW = 1;
+
     Button load_btn;
     private long mLastClickTime = 0;
     ProgressBar progressBar;
-    ArrayList<Coin> coins = new ArrayList<>();
+    static ArrayList<Coin> coins = new ArrayList<>();
     APIInterface api;
 
-    MyRecyclerViewAdapter adapter;
-    RecyclerView recyclerView;
+    static MyRecyclerViewAdapter adapter;
+    static RecyclerView recyclerView;
     public static final int REQ_CODE = 11;
 
     DbHelper dbHelper;
     SQLiteDatabase db;
     boolean threadcomplete = false;
 
-    private LooperThread looperThread = new LooperThread();
+    public static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mainActivity;
+
+        public MyHandler(MainActivity mainActivity) {
+            this.mainActivity = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case INITIALIZE_VIEW:
+                    Log.i("HASHEM", "handleMessage: llllllllllllll");
+                    adapter = new MyRecyclerViewAdapter(mainActivity.get(), coins);
+                    adapter.setClickListener(mainActivity.get());
+                    recyclerView.setAdapter(adapter);
+            }
+        }
+    }
+
+    private final MyHandler mainHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +75,13 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // start looper
-        looperThread.start();
-
         // Button and progressbar Configuration
         progressBar = findViewById(R.id.pBar);
         load_btn = findViewById(R.id.load_btn);
+        recyclerView = findViewById(R.id.coinlist);
         load_btn.setOnClickListener(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
 
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
         try {
@@ -65,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         } catch (Exception e) {
             Log.i("Error", e.toString());
         }
+
         // ------------------- DB -----------------------
         dbHelper = new DbHelper(this);
         // Gets the data repository in write mode
@@ -73,30 +101,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
 
         // start fetching on another thread
-        looperThread.myHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
-                if (coins.isEmpty()) {
-                    new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
-                            .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
-                }
-                Log.i("COINS", coins.toString());
-                // ------------------- RECYCLER VIEW -----------------------
-                recyclerView = findViewById(R.id.coinlist);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                adapter = new MyRecyclerViewAdapter(MainActivity.this, coins);
-                adapter.setClickListener(MainActivity.this);
-                recyclerView.setAdapter(adapter);
+        ThreadPool.getInstance().submit(() -> {
+            coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+            if (coins.isEmpty()) {
+                new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
+                        .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
             }
+            Message message = new Message();
+            message.what = INITIALIZE_VIEW;
+            mainHandler.sendMessage(message);
         });
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i("MainLogs", "onStart");
     }
 
     @Override
@@ -113,18 +127,15 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        Runnable newthread = () -> {
-            Log.i("BIG", "start big compute");
-            api.retrieveCoinFromApi(progressBar);
-            coins.clear();
-            adapter.notifyDataSetChanged();
-            coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
-            adapter.notifyItemRangeInserted(0, coins.size());
-            progressBar.setProgress(0);
-            Log.i("BIG", "end of big computation");
-            threadcomplete = true;
-        };
-        newthread.run();
+        Log.i("BIG", "start big compute");
+        api.retrieveCoinFromApi(progressBar);
+        coins.clear();
+        adapter.notifyDataSetChanged();
+        coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
+        adapter.notifyItemRangeInserted(0, coins.size());
+        progressBar.setProgress(0);
+        Log.i("BIG", "end of big computation");
+        threadcomplete = true;
         boolean untill_end = true;
         while (untill_end) {
             if (threadcomplete) {
@@ -170,5 +181,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         } else {
             return super.onOptionsItemSelected(menuItem);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ThreadPool.getInstance().end();
     }
 }
