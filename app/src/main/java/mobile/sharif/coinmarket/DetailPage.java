@@ -41,7 +41,6 @@ public class DetailPage extends AppCompatActivity {
 
         APIInterface api = new APIInterface();
         api.getCandles(coin.getSymbol(), APIInterface.Range.oneMonth);
-        //TODO
         yValsCandleStick = new ArrayList<>();
         yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
@@ -59,32 +58,31 @@ public class DetailPage extends AppCompatActivity {
                     yValsCandleStick = new ArrayList<>();
                     yValsCandleStick.addAll(api.candleEntries);
                 }
+                candleStickChart = findViewById(R.id.candle_stick_chart);
+                candleStickChart.setHighlightPerDragEnabled(true);
+                candleStickChart.setDrawBorders(true);
+                candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
+                candleStickChart.requestDisallowInterceptTouchEvent(true);
+
+
+                setAxisOptions();
+
+                Legend l = candleStickChart.getLegend();
+                l.setEnabled(true);
+
+                CandleDataSet set1 = SetCandleDataSet(finalCoin);
+
+
+                // create a data object with the datasets
+                CandleData data = new CandleData(set1);
+
+
+                // set data
+                candleStickChart.setData(data);
+                candleStickChart.invalidate();
             } else {
                 Toast.makeText(DetailPage.this, "No Candle Data Recieved", Toast.LENGTH_SHORT).show();
             }
-            candleStickChart = findViewById(R.id.candle_stick_chart);
-            candleStickChart.setHighlightPerDragEnabled(true);
-            candleStickChart.setDrawBorders(true);
-            candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
-            candleStickChart.requestDisallowInterceptTouchEvent(true);
-
-
-            setAxisOptions();
-
-            Legend l = candleStickChart.getLegend();
-            l.setEnabled(true);
-
-            CandleDataSet set1 = SetCandleDataSet(finalCoin);
-
-
-            // create a data object with the datasets
-            CandleData data = new CandleData(set1);
-
-
-            // set data
-            candleStickChart.setData(data);
-            candleStickChart.invalidate();
-
         });
 
 
