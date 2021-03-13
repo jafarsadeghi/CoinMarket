@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     MyRecyclerViewAdapter adapter;
     static RecyclerView recyclerView;
     ProgressBar progressBar;
-    public static final int REQ_CODE = 11;
 
     DbHelper dbHelper;
     SQLiteDatabase db;
@@ -61,8 +60,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             MainActivity mainActivity = mainActivityWeakReference.get();
             switch (msg.what) {
                 case FETCH_COINS:
-                    mainActivity.progressBar.setProgress(0);
+                    Log.i("end","end2");
+                    coins.clear();
                     mainActivity.adapter.notifyDataSetChanged();
+                    coins.addAll(mainActivity.dbHelper.getAllCoins(mainActivity.db, mainActivity.progressBar));
+                    mainActivity.progressBar.setProgress(0);
                     mainActivity.adapter.notifyItemRangeInserted(0, coins.size());
                 case CLEAR_LIST:
                     mainActivity.adapter.notifyDataSetChanged();
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         api = new APIInterface(db, dbHelper);
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
 
-        coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
+        coins = dbHelper.getAllCoins(db, progressBar);
         if (coins.isEmpty()) {
             new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
                     .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     public void onItemClick(View view, int position) {
         Intent detailIntent = new Intent(this, DetailPage.class);
         detailIntent.putExtra("coin", adapter.getItem(position));
-        startActivityForResult(detailIntent, REQ_CODE);
+        startActivity(detailIntent);
     }
 
     @Override
@@ -134,13 +136,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
 
         ThreadPool.getInstance().submit(() -> {
-            Log.i("BIG", "start big compute");
             mLastClickTime = SystemClock.elapsedRealtime();
             api.retrieveCoinFromApi(progressBar);
-            coins.clear();
-            coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
-            Log.i("BIG", "end of big computation");
-
             Message message = new Message();
             message.what = FETCH_COINS;
             mainHandler.sendMessage(message);
@@ -181,8 +178,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         } else if (menuItem.getItemId() == R.id.reload_btn) {
             ThreadPool.getInstance().submit(() -> {
                 coins.clear();
-                coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
-
+                coins.addAll(dbHelper.getAllCoins(db, progressBar));
                 Message message = new Message();
                 message.what = RELOAD;
                 mainHandler.sendMessage(message);

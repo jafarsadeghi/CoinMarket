@@ -35,7 +35,7 @@ public class APIInterface {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
-        coin_info_api_key = backup_api_key;
+//        coin_info_api_key = backup_api_key;
     }
 
     public APIInterface() {
@@ -58,6 +58,7 @@ public class APIInterface {
                 retrieveCoinPicFromApi(coin);
                 progressBar.setProgress((i + 1) * 10);
             }
+            Log.i("end", "end");
             start += step;
         } catch (Exception e) {
             Log.i("JSON", e.toString());
