@@ -95,7 +95,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return new Coin(name, short_name, price, one_hour, one_day, seven_day, logo, rank);
     }
 
-    public ArrayList<Coin> getAllCoins(SQLiteDatabase db, DbHelper dbHelper, ProgressBar progres) {
+    public ArrayList<Coin> getAllCoins(SQLiteDatabase db, ProgressBar progres) {
         String sortOrder = COLUMN_RANK + " ASC";
         Cursor cursor = db.query(DbHelper.TABLE_NAME,
                 null, null, null, null, null, sortOrder);
@@ -103,7 +103,7 @@ public class DbHelper extends SQLiteOpenHelper {
         ArrayList<Coin> coins = new ArrayList<>();
         double length = cursor.getCount();
         while (cursor.moveToNext()) {
-            Coin coin = dbHelper.getCoin(cursor);
+            Coin coin = getCoin(cursor);
             coins.add(coin);
             progres.setProgress((int)Math.round((cursor.getPosition() / length) * 100));
             try{

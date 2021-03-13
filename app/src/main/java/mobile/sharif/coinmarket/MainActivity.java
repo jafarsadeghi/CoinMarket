@@ -32,48 +32,58 @@ import javax.net.ssl.SSLEngine;
 
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
-    public static final int INITIALIZE_VIEW = 1;
+    public static final int FETCH_COINS = 2;
+    public static final int CLEAR_LIST = 3;
+    public static final int RELOAD = 4;
 
     Button load_btn;
     private long mLastClickTime = 0;
-    ProgressBar progressBar;
     static ArrayList<Coin> coins = new ArrayList<>();
     APIInterface api;
 
-    static MyRecyclerViewAdapter adapter;
+    MyRecyclerViewAdapter adapter;
     static RecyclerView recyclerView;
-    public static final int REQ_CODE = 11;
+    ProgressBar progressBar;
 
     DbHelper dbHelper;
     SQLiteDatabase db;
-    boolean threadcomplete = false;
 
     public static class MyHandler extends Handler {
-        private final WeakReference<MainActivity> mainActivity;
+        private final WeakReference<MainActivity> mainActivityWeakReference;
 
         public MyHandler(MainActivity mainActivity) {
-            this.mainActivity = new WeakReference<>(mainActivity);
+            this.mainActivityWeakReference = new WeakReference<>(mainActivity);
         }
 
         @Override
         public void handleMessage(Message msg) {
+            MainActivity mainActivity = mainActivityWeakReference.get();
             switch (msg.what) {
-                case INITIALIZE_VIEW:
-                    Log.i("HASHEM", "handleMessage: llllllllllllll");
-                    adapter = new MyRecyclerViewAdapter(mainActivity.get(), coins);
-                    adapter.setClickListener(mainActivity.get());
-                    recyclerView.setAdapter(adapter);
+                case FETCH_COINS:
+                    Log.i("end","end2");
+                    coins.clear();
+                    mainActivity.adapter.notifyDataSetChanged();
+                    coins.addAll(mainActivity.dbHelper.getAllCoins(mainActivity.db, mainActivity.progressBar));
+                    mainActivity.progressBar.setProgress(0);
+                    mainActivity.adapter.notifyItemRangeInserted(0, coins.size());
+                case CLEAR_LIST:
+                    mainActivity.adapter.notifyDataSetChanged();
+                case RELOAD:
+                    mainActivity.progressBar.setProgress(0);
+                    mainActivity.adapter.notifyDataSetChanged();
+                    mainActivity.adapter.notifyItemRangeInserted(0, coins.size());
             }
         }
     }
 
-    private final MyHandler mainHandler = new MyHandler(this);
+    private MyHandler mainHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("MainLogs", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainHandler = new MyHandler(this);
 
         // Button and progressbar Configuration
         progressBar = findViewById(R.id.pBar);
@@ -100,24 +110,22 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         api = new APIInterface(db, dbHelper);
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
 
-        // start fetching on another thread
-        ThreadPool.getInstance().submit(() -> {
-            coins = dbHelper.getAllCoins(db, dbHelper, progressBar);
-            if (coins.isEmpty()) {
-                new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
-                        .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
-            }
-            Message message = new Message();
-            message.what = INITIALIZE_VIEW;
-            mainHandler.sendMessage(message);
-        });
+        coins = dbHelper.getAllCoins(db, progressBar);
+        if (coins.isEmpty()) {
+            new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
+                    .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
+        }
+        // ------------------- RECYCLER VIEW -----------------------
+        adapter = new MyRecyclerViewAdapter(MainActivity.this, coins);
+        adapter.setClickListener(MainActivity.this);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onItemClick(View view, int position) {
         Intent detailIntent = new Intent(this, DetailPage.class);
         detailIntent.putExtra("coin", adapter.getItem(position));
-        startActivityForResult(detailIntent, REQ_CODE);
+        startActivity(detailIntent);
     }
 
     @Override
@@ -126,23 +134,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
             Toast.makeText(this, R.string.too_many_req, Toast.LENGTH_SHORT).show();
             return;
         }
-        mLastClickTime = SystemClock.elapsedRealtime();
-        Log.i("BIG", "start big compute");
-        api.retrieveCoinFromApi(progressBar);
-        coins.clear();
-        adapter.notifyDataSetChanged();
-        coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
-        adapter.notifyItemRangeInserted(0, coins.size());
-        progressBar.setProgress(0);
-        Log.i("BIG", "end of big computation");
-        threadcomplete = true;
-        boolean untill_end = true;
-        while (untill_end) {
-            if (threadcomplete) {
-                untill_end = false;
-            }
-        }
 
+        ThreadPool.getInstance().submit(() -> {
+            mLastClickTime = SystemClock.elapsedRealtime();
+            api.retrieveCoinFromApi(progressBar);
+            Message message = new Message();
+            message.what = FETCH_COINS;
+            mainHandler.sendMessage(message);
+        });
     }
 
     @Override
@@ -166,17 +165,25 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.dump_data) {
-            api.resetStart();
-            coins.clear();
-            adapter.notifyDataSetChanged();
-            dbHelper.deleteAllData(db);
+            ThreadPool.getInstance().submit(() -> {
+                dbHelper.deleteAllData(db);
+                api.resetStart();
+                coins.clear();
+
+                Message message = new Message();
+                message.what = CLEAR_LIST;
+                mainHandler.sendMessage(message);
+            });
             return true;
         } else if (menuItem.getItemId() == R.id.reload_btn) {
-            coins.clear();
-            adapter.notifyDataSetChanged();
-            coins.addAll(dbHelper.getAllCoins(db, dbHelper, progressBar));
-            adapter.notifyItemRangeInserted(0, coins.size());
-            progressBar.setProgress(0);
+            ThreadPool.getInstance().submit(() -> {
+                coins.clear();
+                coins.addAll(dbHelper.getAllCoins(db, progressBar));
+                Message message = new Message();
+                message.what = RELOAD;
+                mainHandler.sendMessage(message);
+            });
+
             return true;
         } else {
             return super.onOptionsItemSelected(menuItem);

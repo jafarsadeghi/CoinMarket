@@ -24,7 +24,7 @@ import okhttp3.Response;
 
 public class APIInterface {
 
-    private final static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
+    private static String coin_info_api_key = "60cf371d-fb56-4719-acba-ff1d0094e413";
     private SQLiteDatabase db;
     public DbHelper dbHelper;
     private int start = 1;
@@ -58,6 +58,7 @@ public class APIInterface {
                 retrieveCoinPicFromApi(coin);
                 progressBar.setProgress((i + 1) * 10);
             }
+            Log.i("end", "end");
             start += step;
         } catch (Exception e) {
             Log.i("JSON", e.toString());
