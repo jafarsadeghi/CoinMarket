@@ -35,13 +35,13 @@ public class APIInterface {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
-//        coin_info_api_key = backup_api_key;
+        coin_info_api_key = backup_api_key;
     }
 
     public APIInterface() {
     }
 
-    private void extractCoinFromResponse(String response, ProgressBar progressBar) {
+    private void extractCoinFromResponse(String response, ProgressBar progressBar, MainActivity.MyHandler handler) {
         try {
             JSONArray arr = new JSONObject(response).getJSONArray("data");
             for (int i = 0; i < arr.length(); i++) {
@@ -56,10 +56,13 @@ public class APIInterface {
                 Double seven_day = changes.getDouble("percent_change_7d");
                 Coin coin = new Coin(name, symbol, price, one_hour, one_day, seven_day, rank);
                 retrieveCoinPicFromApi(coin);
-                progressBar.setProgress((i + 1) * 10);
+                progressBar.setProgress((i + 1) * 10 - 9);
             }
-            Log.i("end", "end");
             start += step;
+            progressBar.setProgress(0);
+            MainActivity.coins.addAll(dbHelper.getAllCoins(db, progressBar));
+            progressBar.setProgress(100);
+            handler.sendEmptyMessage(MainActivity.RELOAD);
         } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
@@ -72,7 +75,7 @@ public class APIInterface {
                 .build();
     }
 
-    public void retrieveCoinFromApi(ProgressBar progressBar) {
+    public void retrieveCoinFromApi(ProgressBar progressBar, MainActivity.MyHandler handler) {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
@@ -92,7 +95,7 @@ public class APIInterface {
                     throw new IOException("Unexpected code " + response);
                 } else {
                     String resp = response.body().string();
-                    extractCoinFromResponse(resp, progressBar);
+                    extractCoinFromResponse(resp, progressBar, handler);
                 }
             }
         });
@@ -141,6 +144,15 @@ public class APIInterface {
     public void resetStart() {
         this.start = 1;
     }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getStart() {
+        return this.start;
+    }
+
 
     public enum Range {
         weekly,
@@ -198,13 +210,14 @@ public class APIInterface {
             JSONArray arr = new JSONArray(responseString);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                float open = (float)obj.getDouble("price_open");
-                float close = (float)obj.getDouble("price_close");
-                float high = (float)obj.getDouble("price_high");
-                float low = (float)obj.getDouble("price_low");
-                CandleEntry entry = new CandleEntry(i , high , low , open , close);
+                float open = (float) obj.getDouble("price_open");
+                float close = (float) obj.getDouble("price_close");
+                float high = (float) obj.getDouble("price_high");
+                float low = (float) obj.getDouble("price_low");
+                CandleEntry entry = new CandleEntry(i, high, low, open, close);
                 candleEntries.add(entry);
             }
+            // TODO THIS point
         } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
@@ -212,7 +225,7 @@ public class APIInterface {
 
     public String getCurrentDate() {
         Date d = new Date();
-        CharSequence s  = DateFormat.format("yyyy-MM-dd", d.getTime());
+        CharSequence s = DateFormat.format("yyyy-MM-dd", d.getTime());
         return s.toString();
     }
 

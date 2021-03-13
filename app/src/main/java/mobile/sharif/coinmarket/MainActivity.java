@@ -32,7 +32,7 @@ import javax.net.ssl.SSLEngine;
 
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
-    public static final int FETCH_COINS = 2;
+//    public static final int FETCH_COINS = 2;
     public static final int CLEAR_LIST = 3;
     public static final int RELOAD = 4;
 
@@ -59,19 +59,16 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         public void handleMessage(Message msg) {
             MainActivity mainActivity = mainActivityWeakReference.get();
             switch (msg.what) {
-                case FETCH_COINS:
-                    Log.i("end","end2");
-                    coins.clear();
-                    mainActivity.adapter.notifyDataSetChanged();
-                    coins.addAll(mainActivity.dbHelper.getAllCoins(mainActivity.db, mainActivity.progressBar));
-                    mainActivity.progressBar.setProgress(0);
-                    mainActivity.adapter.notifyItemRangeInserted(0, coins.size());
                 case CLEAR_LIST:
+                    Log.i("start", mainActivity.api.getStart() + "");
                     mainActivity.adapter.notifyDataSetChanged();
+                    mainActivity.api.resetStart();
+                    break;
                 case RELOAD:
+                    Log.i("start1", mainActivity.api.getStart() + "");
                     mainActivity.progressBar.setProgress(0);
                     mainActivity.adapter.notifyDataSetChanged();
-                    mainActivity.adapter.notifyItemRangeInserted(0, coins.size());
+                    break;
             }
         }
     }
@@ -111,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
 
         coins = dbHelper.getAllCoins(db, progressBar);
+        api.setStart(coins.size() + 1);
         if (coins.isEmpty()) {
             new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
                     .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
@@ -137,10 +135,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         ThreadPool.getInstance().submit(() -> {
             mLastClickTime = SystemClock.elapsedRealtime();
-            api.retrieveCoinFromApi(progressBar);
-            Message message = new Message();
-            message.what = FETCH_COINS;
-            mainHandler.sendMessage(message);
+            coins.clear();
+            api.retrieveCoinFromApi(progressBar, mainHandler);
         });
     }
 

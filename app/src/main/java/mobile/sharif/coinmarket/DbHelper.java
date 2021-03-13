@@ -96,9 +96,8 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<Coin> getAllCoins(SQLiteDatabase db, ProgressBar progres) {
-        String sortOrder = COLUMN_RANK + " ASC";
         Cursor cursor = db.query(DbHelper.TABLE_NAME,
-                null, null, null, null, null, sortOrder);
+                null, null, null, null, null, null);
 
         ArrayList<Coin> coins = new ArrayList<>();
         double length = cursor.getCount();

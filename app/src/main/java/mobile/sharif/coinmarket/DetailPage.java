@@ -40,6 +40,7 @@ public class DetailPage extends AppCompatActivity {
 
         APIInterface api = new APIInterface();
         api.getCandles(coin.getSymbol(), APIInterface.Range.oneMonth);
+        //TODO
         yValsCandleStick = new ArrayList<>();
         yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
@@ -112,5 +113,6 @@ public class DetailPage extends AppCompatActivity {
         set.setDrawValues(true);
         return set;
     }
+
 
 }
