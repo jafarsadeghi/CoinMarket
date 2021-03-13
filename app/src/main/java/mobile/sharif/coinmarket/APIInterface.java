@@ -1,3 +1,4 @@
+
 package mobile.sharif.coinmarket;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 
 import okhttp3.Call;
@@ -34,7 +36,7 @@ public class APIInterface {
         this.db = db;
         this.dbHelper = dbHelper;
         String backup_api_key = "023fe52d-b34f-457d-8bf3-5715987cfc08";
-        coin_info_api_key = backup_api_key;
+//        coin_info_api_key = backup_api_key;
     }
 
     public APIInterface() {
@@ -59,9 +61,17 @@ public class APIInterface {
             }
             start += step;
             progressBar.setProgress(0);
+
+            // wait for DB to write data
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            MainActivity.coins.clear();
             MainActivity.coins.addAll(dbHelper.getAllCoins(db, progressBar));
-            progressBar.setProgress(100);
             handler.sendEmptyMessage(MainActivity.RELOAD);
+            progressBar.setProgress(100);
         } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
@@ -78,7 +88,7 @@ public class APIInterface {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
-        String url = HttpUrl.parse(uri).newBuilder().addQueryParameter("start", String.valueOf(start))
+        String url = Objects.requireNonNull(HttpUrl.parse(uri)).newBuilder().addQueryParameter("start", String.valueOf(start))
                 .addQueryParameter("limit", String.valueOf(step)).build().toString();
         Request request = getCustomRequest(url);
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -158,9 +168,10 @@ public class APIInterface {
         oneMonth,
     }
 
-    public ArrayList<CandleEntry> getCandles(String symbol, Range range) {
+    public void getCandles(String symbol, Range range, DetailPage.MyHandler handler) {
         ArrayList<CandleEntry> candleEntries = new ArrayList<>();
         String CANDLE_ALI_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
+        CANDLE_ALI_KEY = "6D65317C-3DA2-434D-91EA-E0C9A8FEA565";
         OkHttpClient okHttpClient = new OkHttpClient();
 
         String miniUrl;
@@ -196,11 +207,12 @@ public class APIInterface {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 } else {
-                    candleEntries.addAll(extractCandlesFromResponse(response.body().string()));
+                    DetailPage.candleEntries.clear();
+                    DetailPage.candleEntries.addAll(extractCandlesFromResponse(response.body().string()));
+                    handler.sendEmptyMessage(DetailPage.CREATE_CHART);
                 }
             }
         });
-        return candleEntries;
     }
 
     private ArrayList<CandleEntry> extractCandlesFromResponse(String responseString) {
@@ -228,5 +240,3 @@ public class APIInterface {
         return s.toString();
     }
 }
-
-

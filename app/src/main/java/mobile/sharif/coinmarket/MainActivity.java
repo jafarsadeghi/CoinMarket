@@ -29,13 +29,13 @@ import javax.net.ssl.SSLEngine;
 
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, View.OnClickListener {
-//    public static final int FETCH_COINS = 2;
+    public static final int INITIALIZE_RECYCLERVIEW = 2;
     public static final int CLEAR_LIST = 3;
     public static final int RELOAD = 4;
 
     Button load_btn;
     private long mLastClickTime = 0;
-    static ArrayList<Coin> coins = new ArrayList<>();
+    public static ArrayList<Coin> coins = new ArrayList<>();
     APIInterface api;
 
     MyRecyclerViewAdapter adapter;
@@ -56,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         public void handleMessage(Message msg) {
             MainActivity mainActivity = mainActivityWeakReference.get();
             switch (msg.what) {
+                case INITIALIZE_RECYCLERVIEW:
+                    mainActivity.adapter = new MyRecyclerViewAdapter(mainActivity, coins);
+                    mainActivity.adapter.setClickListener(mainActivity);
+                    recyclerView.setAdapter(mainActivity.adapter);
+                    break;
                 case CLEAR_LIST:
                     Log.i("start", mainActivity.api.getStart() + "");
                     mainActivity.adapter.notifyDataSetChanged();
@@ -86,34 +91,34 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         load_btn.setOnClickListener(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
         // ------------------- SSL (HTTPS) PROTOCOL -----------------------
-        try {
-            ProviderInstaller.installIfNeeded(getApplicationContext());
-            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(null, null, null);
-            SSLEngine engine = sslContext.createSSLEngine();
-        } catch (Exception e) {
-            Log.i("Error", e.toString());
-        }
+        ThreadPool.getInstance().submit(() -> {
+            try {
+                ProviderInstaller.installIfNeeded(getApplicationContext());
+                SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+                sslContext.init(null, null, null);
+                SSLEngine engine = sslContext.createSSLEngine();
+            } catch (Exception e) {
+                Log.i("Error", e.toString());
+            }
+        });
 
         // ------------------- DB -----------------------
-        dbHelper = new DbHelper(this);
-        // Gets the data repository in write mode
-        db = dbHelper.getWritableDatabase();
-        api = new APIInterface(db, dbHelper);
+        ThreadPool.getInstance().submit(() -> {
+            dbHelper = new DbHelper(this);
+            // Gets the data repository in write mode
+            db = dbHelper.getWritableDatabase();
+            api = new APIInterface(db, dbHelper);
 //        dbHelper.onUpgrade(db, 1, 1); // run this if have db problem
 
-        coins = dbHelper.getAllCoins(db, progressBar);
-        api.setStart(coins.size() + 1);
-        if (coins.isEmpty()) {
-            new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
-                    .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
-        }
-        // ------------------- RECYCLER VIEW -----------------------
-        adapter = new MyRecyclerViewAdapter(MainActivity.this, coins);
-        adapter.setClickListener(MainActivity.this);
-        recyclerView.setAdapter(adapter);
+            coins = dbHelper.getAllCoins(db, progressBar);
+            api.setStart(coins.size() + 1);
+            if (coins.isEmpty()) {
+                new AlertDialog.Builder(MainActivity.this).setMessage(R.string.not_internet)
+                        .setPositiveButton(R.string.reload, (dialog, id) -> load_btn.callOnClick()).show();
+            }
+            handler.sendEmptyMessage(INITIALIZE_RECYCLERVIEW);
+        });
     }
 
     @Override
@@ -162,30 +167,18 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 dbHelper.deleteAllData(db);
                 api.resetStart();
                 coins.clear();
-
-                Message message = new Message();
-                message.what = CLEAR_LIST;
-                handler.sendMessage(message);
+                handler.sendEmptyMessage(CLEAR_LIST);
             });
             return true;
         } else if (menuItem.getItemId() == R.id.reload_btn) {
             ThreadPool.getInstance().submit(() -> {
                 coins.clear();
                 coins.addAll(dbHelper.getAllCoins(db, progressBar));
-                Message message = new Message();
-                message.what = RELOAD;
-                handler.sendMessage(message);
+                handler.sendEmptyMessage(RELOAD);
             });
-
             return true;
         } else {
             return super.onOptionsItemSelected(menuItem);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        ThreadPool.getInstance().end();
     }
 }
