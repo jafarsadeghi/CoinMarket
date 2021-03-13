@@ -21,9 +21,6 @@ import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.google.android.gms.security.ProviderInstaller;
 
@@ -73,14 +70,14 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         }
     }
 
-    private MyHandler mainHandler;
+    private MyHandler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("MainLogs", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainHandler = new MyHandler(this);
+        handler = new MyHandler(this);
 
         // Button and progressbar Configuration
         progressBar = findViewById(R.id.pBar);
@@ -136,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         ThreadPool.getInstance().submit(() -> {
             mLastClickTime = SystemClock.elapsedRealtime();
             coins.clear();
-            api.retrieveCoinFromApi(progressBar, mainHandler);
+            api.retrieveCoinFromApi(progressBar, handler);
         });
     }
 
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
                 Message message = new Message();
                 message.what = CLEAR_LIST;
-                mainHandler.sendMessage(message);
+                handler.sendMessage(message);
             });
             return true;
         } else if (menuItem.getItemId() == R.id.reload_btn) {
@@ -177,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
                 coins.addAll(dbHelper.getAllCoins(db, progressBar));
                 Message message = new Message();
                 message.what = RELOAD;
-                mainHandler.sendMessage(message);
+                handler.sendMessage(message);
             });
 
             return true;
@@ -189,6 +186,6 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ThreadPool.getInstance().end();
+//        ThreadPool.getInstance().end();
     }
 }

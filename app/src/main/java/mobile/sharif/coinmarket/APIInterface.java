@@ -29,7 +29,6 @@ public class APIInterface {
     public DbHelper dbHelper;
     private int start = 1;
     private final int step = 10;
-    public ArrayList<CandleEntry> candleEntries = new ArrayList<>();
 
     public APIInterface(SQLiteDatabase db, DbHelper dbHelper) {
         this.db = db;
@@ -159,9 +158,9 @@ public class APIInterface {
         oneMonth,
     }
 
-    public void getCandles(String symbol, Range range) {
+    public ArrayList<CandleEntry> getCandles(String symbol, Range range) {
+        ArrayList<CandleEntry> candleEntries = new ArrayList<>();
         String CANDLE_ALI_KEY = "04561E3F-671F-415B-B164-B237BB8399B7";
-
         OkHttpClient okHttpClient = new OkHttpClient();
 
         String miniUrl;
@@ -176,7 +175,6 @@ public class APIInterface {
                 miniUrl = "";
         }
 
-
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/USD/history?".concat(miniUrl)))
                 .newBuilder();
 
@@ -188,7 +186,9 @@ public class APIInterface {
 
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) { Log.v("TAG", e.getMessage()); }
+            public void onFailure(Call call, IOException e) {
+                Log.v("TAG", e.getMessage());
+            }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
@@ -196,14 +196,15 @@ public class APIInterface {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 } else {
-                    extractCandlesFromResponse(response.body().string());
+                    candleEntries.addAll(extractCandlesFromResponse(response.body().string()));
                 }
             }
         });
-
+        return candleEntries;
     }
 
-    private void extractCandlesFromResponse(String responseString) {
+    private ArrayList<CandleEntry> extractCandlesFromResponse(String responseString) {
+        ArrayList<CandleEntry> candleEntries = new ArrayList<>();
         try {
             JSONArray arr = new JSONArray(responseString);
             for (int i = 0; i < arr.length(); i++) {
@@ -215,19 +216,17 @@ public class APIInterface {
                 CandleEntry entry = new CandleEntry(i, high, low, open, close);
                 candleEntries.add(entry);
             }
-            // TODO THIS point
         } catch (Exception e) {
             Log.i("JSON", e.toString());
         }
+        return candleEntries;
     }
 
-    public String getCurrentDate() {
+    private String getCurrentDate() {
         Date d = new Date();
         CharSequence s = DateFormat.format("yyyy-MM-dd", d.getTime());
         return s.toString();
     }
-
-
 }
 
 

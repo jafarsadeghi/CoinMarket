@@ -7,8 +7,9 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -20,13 +21,76 @@ import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 
 public class DetailPage extends AppCompatActivity {
+    public static final int CREATE_CHART = 1;
+
+    private final APIInterface api = new APIInterface();
+    private ArrayList<CandleEntry> candleEntries;
+    private ArrayList<CandleEntry> yValuesCandleStick = new ArrayList<>();
+    private Coin coin;
+
+    public static class MyHandler extends Handler {
+        private final WeakReference<DetailPage> detailPageWeakReference;
+
+        public MyHandler(DetailPage detailPage) {
+            this.detailPageWeakReference = new WeakReference<>(detailPage);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            DetailPage detailPage = detailPageWeakReference.get();
+            switch (msg.what) {
+                case CREATE_CHART:
+                    detailPage.range.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        Toast.makeText(detailPage, "Changed", Toast.LENGTH_SHORT).show();
+                        if (detailPage.candleEntries.size() >= 7) {
+                            if (detailPage.range.isChecked()) {
+                                detailPage.yValuesCandleStick.clear();
+                                for (int i = 0; i < 7; i++) {
+                                    detailPage.yValuesCandleStick.add(detailPage.candleEntries.get(i));
+                                }
+                            } else {
+                                detailPage.yValuesCandleStick.clear();
+                                detailPage.yValuesCandleStick.addAll(detailPage.candleEntries);
+                            }
+
+                            detailPage.candleStickChart.setHighlightPerDragEnabled(true);
+                            detailPage.candleStickChart.setDrawBorders(true);
+                            detailPage.candleStickChart.setBorderColor(detailPage.getResources().getColor(R.color.colorLightGray));
+                            detailPage.candleStickChart.requestDisallowInterceptTouchEvent(true);
+
+                            detailPage.setAxisOptions();
+
+                            Legend l = detailPage.candleStickChart.getLegend();
+                            l.setEnabled(true);
+
+                            CandleDataSet set1 = detailPage.setCandleDataSet(detailPage.coin);
+
+                            // create a data object with the dataset
+                            CandleData data = new CandleData(set1);
+
+                            // set data
+                            detailPage.candleStickChart.setData(data);
+                            detailPage.candleStickChart.invalidate();
+                        } else {
+                            Toast.makeText(detailPage, "No Candle Data Received", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    break;
+            }
+        }
+    }
+
+    private MyHandler handler;
+
+
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch range;
-    ArrayList<CandleEntry> yValsCandleStick;
     CandleStickChart candleStickChart;
 
     @Override
@@ -34,58 +98,17 @@ public class DetailPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_page);
         Bundle extras = getIntent().getExtras();
-        Coin coin = new Coin();
-        if (extras != null)
-            if (extras.containsKey("coin"))
-                coin = (Coin) getIntent().getSerializableExtra("coin");
-
-        APIInterface api = new APIInterface();
-        api.getCandles(coin.getSymbol(), APIInterface.Range.oneMonth);
-        yValsCandleStick = new ArrayList<>();
-        yValsCandleStick.addAll(api.candleEntries);
         range = findViewById(R.id.range);
-        Coin finalCoin = coin;
-        range.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Toast.makeText(DetailPage.this, "Changed", Toast.LENGTH_SHORT).show();
-            if (api.candleEntries.size() > 7) {
-                if (!range.isChecked()) {
-                    ArrayList<CandleEntry> temp = new ArrayList<>();
-                    for (int i = api.candleEntries.size() - 7; i < api.candleEntries.size(); i++) {
-                        temp.add(api.candleEntries.get(i));
-                    }
-                    yValsCandleStick = temp;
-                } else {
-                    yValsCandleStick = new ArrayList<>();
-                    yValsCandleStick.addAll(api.candleEntries);
-                }
-                candleStickChart = findViewById(R.id.candle_stick_chart);
-                candleStickChart.setHighlightPerDragEnabled(true);
-                candleStickChart.setDrawBorders(true);
-                candleStickChart.setBorderColor(getResources().getColor(R.color.colorLightGray));
-                candleStickChart.requestDisallowInterceptTouchEvent(true);
+        candleStickChart = findViewById(R.id.candle_stick_chart);
 
+        handler = new MyHandler(this);
 
-                setAxisOptions();
+        coin = (Coin) getIntent().getSerializableExtra("coin");
 
-                Legend l = candleStickChart.getLegend();
-                l.setEnabled(true);
-
-                CandleDataSet set1 = SetCandleDataSet(finalCoin);
-
-
-                // create a data object with the datasets
-                CandleData data = new CandleData(set1);
-
-
-                // set data
-                candleStickChart.setData(data);
-                candleStickChart.invalidate();
-            } else {
-                Toast.makeText(DetailPage.this, "No Candle Data Recieved", Toast.LENGTH_SHORT).show();
-            }
+        ThreadPool.getInstance().submit(() -> {
+            candleEntries = api.getCandles(coin.getSymbol(), APIInterface.Range.oneMonth);
+            handler.sendEmptyMessage(CREATE_CHART);
         });
-
-
     }
 
     private void setAxisOptions() {
@@ -105,9 +128,9 @@ public class DetailPage extends AppCompatActivity {
         xAxis.setAvoidFirstLastClipping(true);
     }
 
-    private CandleDataSet SetCandleDataSet(Coin coin) {
+    private CandleDataSet setCandleDataSet(Coin coin) {
 
-        CandleDataSet set = new CandleDataSet(yValsCandleStick, coin.getDisplay_name());
+        CandleDataSet set = new CandleDataSet(yValuesCandleStick, coin.getDisplay_name());
         set.setColor(Color.rgb(80, 80, 80));
         set.setShadowColor(getResources().getColor(R.color.colorLightGrayMore));
         set.setShadowWidth(0.8f);
