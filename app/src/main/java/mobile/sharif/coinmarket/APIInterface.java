@@ -175,9 +175,7 @@ public class APIInterface {
 
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                Log.v("TAG", e.getMessage());
-            }
+            public void onFailure(Call call, IOException e) { Log.v("TAG", e.getMessage()); }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
